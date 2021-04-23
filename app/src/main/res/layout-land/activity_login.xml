@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Login"
+    >
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/hero_area"
+        android:contentDescription="@string/desNen" />
+    <io.alterac.blurkit.BlurLayout
+        android:id="@+id/blurLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:blk_blurRadius="3"
+        app:blk_downscaleFactor="0.12"
+        app:blk_fps="0"
+        android:layout_centerInParent="true">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    app:srcCompat="@drawable/logo_dark"
+                    android:contentDescription="@string/desLogo" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:fontFamily="@font/coiny"
+                    android:text="@string/txtChao"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    tools:ignore="RtlSymmetry" />
+
+                <EditText
+                    android:id="@+id/username"
+                    android:layout_width="500dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/input_field"
+                    android:ems="10"
+                    android:drawableStart="@drawable/ic_baseline_email_24"
+                    android:drawablePadding="5dp"
+                    android:hint="@string/username"
+                    android:inputType="textPersonName"
+                    android:textColorHint="@color/gray"
+                    android:importantForAutofill="no" />
+
+                <EditText
+                    android:id="@+id/password"
+                    android:layout_width="500dp"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/input_field"
+                    android:ems="10"
+                    android:drawableStart="@drawable/ic_baseline_lock_24"
+                    android:drawablePadding="5dp"
+                    android:hint="@string/passwordHint"
+                    android:inputType="textPassword"
+                    android:textColorHint="@color/gray"
+                    android:importantForAutofill="no"
+                    tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/dangnhap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bglogin"
+                    android:text="@string/btnDangNhap"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    />
+
+
+            </LinearLayout>
+
+        </ScrollView>
+    </io.alterac.blurkit.BlurLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

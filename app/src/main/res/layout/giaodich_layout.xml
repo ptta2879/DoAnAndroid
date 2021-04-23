@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:cardElevation="10dp">
+
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                >
+                <TextView
+
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:text="Mssv Bán"/>
+                <TextView
+                  android:id="@+id/mssvBanGiaoDich"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    />
+            </TableRow>
+
+            <TableRow
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:text="Mã Vé"/>
+                <TextView
+               android:id="@+id/maVeGiaoDich"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    />
+            </TableRow>
+
+            <TableRow
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+                <TextView
+
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:text="Ngày"/>
+                <TextView
+                android:id="@+id/ngayBanGiaoDich"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:text="MSSV Nhận"/>
+                <TextView
+                  android:id="@+id/mssvNhanGiaoDich"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    />
+            </TableRow>
+        </TableLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

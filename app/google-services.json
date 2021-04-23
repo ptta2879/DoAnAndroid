@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "107949389120",
+    "firebase_url": "https://ptta-cnm.firebaseio.com",
+    "project_id": "ptta-cnm",
+    "storage_bucket": "ptta-cnm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107949389120:android:ab4493672fe1e02c51f6a5",
+        "android_client_info": {
+          "package_name": "com.IUH.quetma"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "107949389120-q7125m7n32oicl7b0d1rnk347udfisum.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADZ3yxGfWOfNZGuvuLRMjaaYRsdrSnQww"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "107949389120-q7125m7n32oicl7b0d1rnk347udfisum.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
