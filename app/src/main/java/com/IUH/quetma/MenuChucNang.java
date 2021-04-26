@@ -5,17 +5,29 @@ import androidx.cardview.widget.CardView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
+import com.tapadoo.alerter.Alerter;
+
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import io.alterac.blurkit.BlurLayout;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MenuChucNang extends AppCompatActivity {
     private FirebaseAuth root;
@@ -24,7 +36,7 @@ public class MenuChucNang extends AppCompatActivity {
     private ImageView backImage,logo;
     private TextView chu;
     private CardView chuNang1,chuNang2,chuNang3,chuNang4;
-
+    private Integer phanQuyen;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +68,34 @@ public class MenuChucNang extends AppCompatActivity {
         chuNang3.animate().translationY(0).alpha(1).setDuration(800).setStartDelay(1000).start();
         chuNang4.animate().translationX(0).alpha(1).setDuration(800).setStartDelay(1100).start();
         root = FirebaseAuth.getInstance();
-        System.out.println(root.getCurrentUser().getEmail());
+        FirebaseUser user = root.getCurrentUser();
+        String email = user != null ? user.getEmail() : null;
+        if (email != null){
+            ExecutorService executorService = Executors.newFixedThreadPool(1);
+            Future<Integer> quyen  =  executorService.submit(new GetQuyen(email));
+            try {
+                phanQuyen = quyen.get();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }else{
+            Log.e("Error Email","Lỗi email không lấy được");
+        }
+        chuNang1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(phanQuyen == 1 ){
+                    Intent intent = new Intent(MenuChucNang.this,ThemVe.class);
+                    startActivity(intent);
+                }else {
+                    Alerter.create(MenuChucNang.this)
+                            .setTitle("Thông Báo").setText("Không có quyền thực hiện điều này")
+                            .setBackgroundColorRes(R.color.red)
+                            .setIcon(R.drawable.ic_baseline_close_24).enableProgress(true)
+                            .enableSwipeToDismiss().setDuration(4000).show();
+                }
+            }
+        });
         chuNang2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +137,26 @@ public class MenuChucNang extends AppCompatActivity {
         chuNang3 =(CardView) findViewById(R.id.chucnang3);
         chuNang4 =(CardView) findViewById(R.id.chucnang4);
         btnDangXuat = (Button) findViewById(R.id.dangxuat);
-
+    }
+    static class GetQuyen implements Callable<Integer>{
+        private final String emailGet;
+        private final StringBuilder url=new StringBuilder("https://ptta-cnm.herokuapp.com/congtacvien/");
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(20,TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true).build();
+        public GetQuyen(String email){
+            this.emailGet = email;
+        }
+        @Override
+        public Integer call() throws Exception {
+            url.append(emailGet);
+            Request.Builder builder = new Request.Builder();
+            builder.url(url.toString());
+            Request request = builder.build();
+            Response response = okHttpClient.newCall(request).execute();
+            String noidung = Objects.requireNonNull(response.body()).string();
+            Gson gson = new Gson();
+            CongTacVien[] congTacVien = gson.fromJson(noidung, CongTacVien[].class);
+            return congTacVien[0].getPhanQuyen();
+        }
     }
 }

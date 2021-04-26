@@ -38,6 +38,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -75,7 +76,8 @@ public class ThongTinVe extends AppCompatActivity {
     }
     static class GetUrl implements Callable<SinhVien>{
         private final String url ;
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().retryOnConnectionFailure(true).build();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
+                                                                .readTimeout(20,TimeUnit.SECONDS).retryOnConnectionFailure(true).build();
         public GetUrl(String url){
             this.url = url;
         }
@@ -96,7 +98,7 @@ public class ThongTinVe extends AppCompatActivity {
         @Override
         public Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> call() throws Exception {
             ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
-            Web3j web3j = Web3j.build(new HttpService("HTTP://192.168.56.1:8545"));
+            Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
             Sukien_sol_Sukien suKien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j, thongTinWeb3.getCredentialsWallet(),new DefaultGasProvider());
             BigInteger mssvInt = new BigInteger(mssv);
             Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> a = suKien_sol_sukien.searVe(mssvInt).send();
@@ -113,7 +115,7 @@ public class ThongTinVe extends AppCompatActivity {
         @Override
         public List call() throws Exception {
             ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
-            Web3j web3j = Web3j.build(new HttpService("HTTP://192.168.56.1:8545"));
+            Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
             Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS
                                                                             ,web3j
                                                                             ,thongTinWeb3.getCredentialsWallet()
@@ -130,7 +132,7 @@ public class ThongTinVe extends AppCompatActivity {
         @Override
         public void run() {
             ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
-            Web3j web3j = Web3j.build(new HttpService("HTTP://192.168.56.1:8545"));
+            Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
             Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS
                     ,web3j
                     ,thongTinWeb3.getCredentialsWallet()

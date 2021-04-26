@@ -11,6 +11,7 @@ public class ThongTinWeb3 {
     public static final String ADDRESS = "0x1928A7554b4Ac7227dD0b30Bb07B3c6FD46F80C6";
     public static final BigInteger GAS_PRICE= new BigInteger("20000000000");
     public static final BigInteger GAS_LIMIT = new BigInteger("300000000") ;
+    public static final String URL = "HTTP://192.168.56.1:8545";
 
     public Credentials getCredentialsWallet(){
         return Credentials.create(PRIVATE_KEY,PUBLIC_KEY);

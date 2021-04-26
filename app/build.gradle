@@ -48,5 +48,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.4.1'
     implementation ('org.web3j:core:4.6.0-android')
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.github.tapadoo:alerter:1.0.6'
+    implementation 'com.github.tapadoo:alerter:7.1.0'
 }
