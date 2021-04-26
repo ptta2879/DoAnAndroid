@@ -1,30 +1,37 @@
 package com.IUH.quetma;
 
+
 public class SuKien {
-    private Integer choNgoi;
-    private String MaSuKien;
-    private String hoatDong;
-    public void setChoNgoi(Integer choNgoi) {
-        this.choNgoi = choNgoi;
+    private Integer chongoi;
+    private String masukien;
+    private String[] hoatdong;
+
+    public SuKien(Integer chongoi, String masukien, String[] hoatdong){
+        this.chongoi = chongoi;
+        this.masukien = masukien;
+        this.hoatdong = hoatdong;
+    }
+    public void setHoatdong(String[] hoatdong) {
+        this.hoatdong = hoatdong;
     }
 
-    public void setMaSuKien(String maSuKien) {
-        MaSuKien = maSuKien;
+    public void setMasukien(String masukien) {
+        this.masukien = masukien;
     }
 
-    public void setHoatDong(String hoatDong) {
-        this.hoatDong = hoatDong;
+    public void setChongoi(Integer chongoi) {
+        this.chongoi = chongoi;
     }
 
-    public Integer getChoNgoi() {
-        return choNgoi;
+    public String getMasukien() {
+        return masukien;
     }
 
-    public String getMaSuKien() {
-        return MaSuKien;
+    public Integer getChongoi() {
+        return chongoi;
     }
 
-    public String getHoatDong() {
-        return hoatDong;
+    public String[] getHoatdong() {
+        return hoatdong;
     }
 }

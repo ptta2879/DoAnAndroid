@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
@@ -68,6 +69,11 @@ public class ThemVe extends AppCompatActivity {
         }
         @Override
         public void run() {
+            try {
+                checkHoatDong();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             GetThongTinTaoVe thongTin = (mssv) ->{
                 String urlFull = url.append(mssv).toString();
                 Request.Builder builder = new Request.Builder();
@@ -98,8 +104,18 @@ public class ThemVe extends AppCompatActivity {
                         .setIcon(R.drawable.ic_baseline_close_24).enableProgress(true)
                         .enableSwipeToDismiss().setDuration(4000).show();
             }
-
-
+        }
+        public Boolean checkHoatDong() throws IOException {
+            String url = "https://ptta-cnm.herokuapp.com/sukien/trangthai";
+            Request.Builder builder = new Request.Builder();
+            builder.url(url);
+            Request request = builder.build();
+            Response response = okHttpClient.newCall(request).execute();
+            String noidung = response.body().string();
+            Gson gson = new Gson();
+            SuKien[] suKiens = gson.fromJson(noidung,SuKien[].class);
+            Log.e("test", suKiens[0].toString());
+            return null;
         }
     }
 }

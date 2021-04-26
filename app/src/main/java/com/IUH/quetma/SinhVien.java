@@ -1,5 +1,7 @@
 package com.IUH.quetma;
 
+import java.util.HashMap;
+
 public class SinhVien {
     private Integer gioitinh;
     private String hovaten;
@@ -9,7 +11,10 @@ public class SinhVien {
     private String nganh;
     private String ngaysinh;
     private String ten;
-    public SinhVien(Integer goitinh, String hovaten,String khoa,String lop,String mssv,String nganh,String ngaysinh,String ten){
+    private HashMap<String, Boolean> hoatdong;
+    public SinhVien(Integer goitinh, String hovaten,String khoa,String lop,String mssv,String nganh,String ngaysinh,String ten,
+                    HashMap<String, Boolean> hoatdong){
+        this.hoatdong = new HashMap<String, Boolean>();
         this.ten = ten;
         this.mssv = mssv;
         this.gioitinh = goitinh;
@@ -18,9 +23,10 @@ public class SinhVien {
         this.lop = lop;
         this.nganh = nganh;
         this.ngaysinh = ngaysinh;
+        this.hoatdong = hoatdong;
     }
     public SinhVien(){
-
+        this.hoatdong = new HashMap<String, Boolean>();
     }
     public void setTen(String ten) {
         this.ten = ten;
@@ -52,6 +58,10 @@ public class SinhVien {
 
     public void setNgaySinh(String ngaysinh) {
         this.ngaysinh = ngaysinh;
+    }
+
+    public void setHoatdong(HashMap<String, Boolean> hoatdong) {
+        this.hoatdong = hoatdong;
     }
 
     public String getTen() {

@@ -2,10 +2,10 @@ package com.IUH.quetma;
 
 public class CongTacVien {
     private String email;
-    private Integer phanQuyen;
+    private Integer phanquyen;
 
     public Integer getPhanQuyen() {
-        return phanQuyen;
+        return phanquyen;
     }
 
     public String getEmail() {
@@ -16,11 +16,11 @@ public class CongTacVien {
         this.email = email;
     }
 
-    public void setPhanQuyen(Integer phanQuyen) {
-        this.phanQuyen = phanQuyen;
+    public void setPhanQuyen(Integer phanquyen) {
+        this.phanquyen = phanquyen;
     }
-    public void setPhanQuyen(String phanQuyen) {
-        Integer phanQuyenInt = Integer.valueOf(phanQuyen);
-        this.phanQuyen = phanQuyenInt;
+    public void setPhanQuyen(String phanquyen) {
+        this.phanquyen = Integer.parseInt(phanquyen);
     }
+
 }

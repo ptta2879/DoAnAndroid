@@ -36,7 +36,7 @@ public class MenuChucNang extends AppCompatActivity {
     private ImageView backImage,logo;
     private TextView chu;
     private CardView chuNang1,chuNang2,chuNang3,chuNang4;
-    private Integer phanQuyen;
+    private Integer phanQuyen = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +91,7 @@ public class MenuChucNang extends AppCompatActivity {
                     Alerter.create(MenuChucNang.this)
                             .setTitle("Thông Báo").setText("Không có quyền thực hiện điều này")
                             .setBackgroundColorRes(R.color.red)
-                            .setIcon(R.drawable.ic_baseline_close_24).enableProgress(true)
+                            .setIcon(R.drawable.ic_baseline_close_24)
                             .enableSwipeToDismiss().setDuration(4000).show();
                 }
             }
