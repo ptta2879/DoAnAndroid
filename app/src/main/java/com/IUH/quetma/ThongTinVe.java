@@ -46,7 +46,8 @@ import okhttp3.Response;
 
 public class ThongTinVe extends AppCompatActivity {
     private String mssv;
-    private TextView nameSv,txtMssv,txtKhoa,txtLop,txtGioiTinh,txtNgaySinh,txtSoHuu,txtNguoiTao,txtTen,txtMaVe,txtNgayLap,txtMaSinhVien,
+    private TextView nameSv,txtMssv,txtKhoa,txtLop,txtGioiTinh,txtNgaySinh,
+            txtSoHuu,txtNguoiTao,txtTen,txtMaVe,txtNgayLap,txtMaSinhVien,
     txtMaSuKien,txtMaVeGiaoDich,txtMaSinhVienGiaoDich,txtNgayGiaoDich,txtMaSinhVienNhan;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,9 +102,21 @@ public class ThongTinVe extends AppCompatActivity {
             Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
             Sukien_sol_Sukien suKien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j, thongTinWeb3.getCredentialsWallet(),new DefaultGasProvider());
             BigInteger mssvInt = new BigInteger(mssv);
-            Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> a = suKien_sol_sukien.searVe(mssvInt).send();
+            Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> a = suKien_sol_sukien.searVe(mssvInt,maSuKien()).send();
             web3j.shutdown();
             return a;
+        }
+        public String maSuKien() throws IOException {
+            String url = "https://ptta-cnm.herokuapp.com/sukien/trangthai";
+            OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
+                    .readTimeout(20,TimeUnit.SECONDS).retryOnConnectionFailure(true).build();
+            Request.Builder builder = new Request.Builder();
+            Request request = builder.url(url).build();
+            Response response = okHttpClient.newCall(request).execute();
+            String noidung = response.body().string();
+            Gson gson = new Gson();
+            SuKien[] suKiens = gson.fromJson(noidung,SuKien[].class);
+            return suKiens[0].getMasukien();
         }
     }
     class LichSu implements Callable<List>{
@@ -241,7 +254,11 @@ public class ThongTinVe extends AppCompatActivity {
         txtNguoiTao.setText(nguoiTao);
         txtTen.setText(fullName);
         txtMaVe.setText(maVe);
-        txtNgayLap.setText(dateTimeString);
+        if(dateTime.intValue() == 0){
+            txtNgayLap.setText("");
+        }else{
+            txtNgayLap.setText(dateTimeString);
+        }
         txtMaSinhVien.setText(mssvGetBlockChainString);
         txtMaSuKien.setText(maSuKien);
     }

@@ -11,6 +11,7 @@ public class SinhVien {
     private String nganh;
     private String ngaysinh;
     private String ten;
+    private String mave;
     private HashMap<String, Boolean> hoatdong;
     public SinhVien(Integer goitinh, String hovaten,String khoa,String lop,String mssv,String nganh,String ngaysinh,String ten,
                     HashMap<String, Boolean> hoatdong){
@@ -28,6 +29,11 @@ public class SinhVien {
     public SinhVien(){
         this.hoatdong = new HashMap<String, Boolean>();
     }
+
+    public void setMave(String mave) {
+        this.mave = mave;
+    }
+
     public void setTen(String ten) {
         this.ten = ten;
     }
@@ -94,5 +100,13 @@ public class SinhVien {
 
     public String getNgaySinh() {
         return ngaysinh;
+    }
+
+    public String getMave() {
+        return mave;
+    }
+
+    public HashMap<String, Boolean> getHoatdong() {
+        return hoatdong;
     }
 }

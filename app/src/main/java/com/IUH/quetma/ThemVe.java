@@ -4,20 +4,27 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 import com.google.zxing.Result;
 import com.tapadoo.alerter.Alerter;
 
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.tx.gas.StaticGasProvider;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,23 +37,45 @@ import okhttp3.Response;
 interface GetThongTinTaoVe{
     SinhVien getThongTin(String mssv) throws IOException;
 }
+interface GetSuKien{
+    SuKien getSuKien() throws IOException;
+}
 public class ThemVe extends AppCompatActivity {
+    private ExecutorService executorService;
     private static final int REQUEST_CAMERA = 1;
     private CodeScanner mCodeScanner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_them_ve);
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        executorService = Executors.newFixedThreadPool(1);
         CodeScannerView codeScannerView = findViewById(R.id.scannerThemVe);
         mCodeScanner = new CodeScanner(this, codeScannerView);
         mCodeScanner.setDecodeCallback(new DecodeCallback() {
             @Override
             public void onDecoded(@NonNull Result result) {
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        executorService.submit(new TaoVe(result.getText()));
+                    }
+                });
+            }
+        });
+        codeScannerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCodeScanner.startPreview();
             }
         });
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        executorService.shutdown();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -60,8 +89,10 @@ public class ThemVe extends AppCompatActivity {
     }
     class TaoVe implements Runnable{
         private final String maSinhVien;
+        private Boolean checkHoatDongTrueFalse;
+        private SuKien thongTinSuKien;
         private SinhVien thongTinSinhVien;
-        private StringBuilder url = new StringBuilder("https://ptta-cnm.herokuapp.com/taikhoan/");
+        private final StringBuilder url = new StringBuilder("https://ptta-cnm.herokuapp.com/taikhoan/");
         OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(20,TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true).build();
         public TaoVe(String mssv){
@@ -70,11 +101,14 @@ public class ThemVe extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                checkHoatDong();
+                if(checkHoatDong() != null){
+                    checkHoatDongTrueFalse = checkHoatDong();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            GetThongTinTaoVe thongTin = (mssv) ->{
+            Boolean checkNamHocSinhVien = checkNamSinhVien();
+            GetThongTinTaoVe thongTin = (mssv) -> {
                 String urlFull = url.append(mssv).toString();
                 Request.Builder builder = new Request.Builder();
                 builder.url(urlFull);
@@ -85,37 +119,117 @@ public class ThemVe extends AppCompatActivity {
                 SinhVien[] sinhVien = gson.fromJson(noiDung,SinhVien[].class);
                 return sinhVien[0];
             };
+            GetSuKien getSuKien =()->{
+              String urlSukien = "https://ptta-cnm.herokuapp.com/sukien/trangthai";
+              Request.Builder builder = new Request.Builder();
+              builder.url(urlSukien);
+              Request request= builder.build();
+              Response response = okHttpClient.newCall(request).execute();
+              String noiDungSuKien = Objects.requireNonNull(response.body()).string();
+              Gson gson = new Gson();
+              SuKien[] suKiens = gson.fromJson(noiDungSuKien,SuKien[].class);
+              return suKiens[0];
+            };
             try {
                 thongTinSinhVien = thongTin.getThongTin(maSinhVien);
+                thongTinSuKien = getSuKien.getSuKien();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(thongTinSinhVien.getMssv() != null){
-                ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
-                Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
-                Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,
-                        web3j,
-                        thongTinWeb3.getCredentialsWallet(),
-                        new DefaultGasProvider());
-            }else{
-                Alerter.create(ThemVe.this)
-                        .setTitle("Thông Báo").setText("Không có thông tin")
-                        .setBackgroundColorRes(R.color.red)
-                        .setIcon(R.drawable.ic_baseline_close_24).enableProgress(true)
-                        .enableSwipeToDismiss().setDuration(4000).show();
-            }
+                if(checkHoatDongTrueFalse || checkNamHocSinhVien){
+                    String nguoiTao = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
+                    ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
+                    Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
+                    Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,
+                            web3j,
+                            thongTinWeb3.getCredentialsWallet(), new StaticGasProvider(ThongTinWeb3.GAS_PRICE,ThongTinWeb3.GAS_LIMIT));
+                    BigInteger mssvInter = new BigInteger(maSinhVien);
+                    if(thongTinSinhVien.getHovaten() != null && thongTinSinhVien.getTen() != null
+                            && thongTinSinhVien.getMave() != null
+                            && thongTinSuKien.getMasukien() != null){
+                        try {
+                            sukien_sol_sukien.createVe(mssvInter,nguoiTao,thongTinSinhVien.getHovaten(),thongTinSinhVien.getTen(),thongTinSuKien.getMasukien(),thongTinSinhVien.getMave()).send();
+                            Alerter.create(ThemVe.this)
+                                    .setTitle("Thông Báo").setText("Xác nhận vé thành công")
+                                    .setBackgroundColorRes(R.color.success)
+                                    .setIcon(R.drawable.ic_baseline_check)
+                                    .enableSwipeToDismiss().setDuration(4000).show();
+                            web3j.shutdown();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Alerter.create(ThemVe.this)
+                                    .setTitle("Thông Báo").setText("Vé đã được xác nhận")
+                                    .setBackgroundColorRes(R.color.red)
+                                    .setIcon(R.drawable.ic_baseline_close_24)
+                                    .enableSwipeToDismiss().setDuration(4000).show();
+                            web3j.shutdown();
+                        }
+                    }else{
+                        Alerter.create(ThemVe.this)
+                                .setTitle("Thông Báo").setText("Không đủ thông tin")
+                                .setBackgroundColorRes(R.color.red)
+                                .setIcon(R.drawable.ic_baseline_close_24)
+                                .enableSwipeToDismiss().setDuration(4000).show();
+                    }
+
+                }else{
+                    Alerter.create(ThemVe.this)
+                            .setTitle("Thông Báo").setText("Không đủ điều kiện")
+                            .setBackgroundColorRes(R.color.red)
+                            .setIcon(R.drawable.ic_baseline_close_24)
+                            .enableSwipeToDismiss().setDuration(4000).show();
+                }
         }
         public Boolean checkHoatDong() throws IOException {
             String url = "https://ptta-cnm.herokuapp.com/sukien/trangthai";
+            String urlSinhVien = "https://ptta-cnm.herokuapp.com/taikhoan/"+maSinhVien;
             Request.Builder builder = new Request.Builder();
             builder.url(url);
             Request request = builder.build();
             Response response = okHttpClient.newCall(request).execute();
-            String noidung = response.body().string();
+            Request requestSinhVien = builder.url(urlSinhVien).build();
+            Response responseSinhVien = okHttpClient.newCall(requestSinhVien).execute();
+            String noiDungSinhVien = Objects.requireNonNull(responseSinhVien.body()).string();
+            String noidung = Objects.requireNonNull(response.body()).string();
             Gson gson = new Gson();
+            SinhVien[] sinhViens = gson.fromJson(noiDungSinhVien, SinhVien[].class);
             SuKien[] suKiens = gson.fromJson(noidung,SuKien[].class);
-            Log.e("test", suKiens[0].toString());
-            return null;
+            if(sinhViens.length == 0){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Alerter.create(ThemVe.this)
+                                .setTitle("Thông Báo").setText("Không có thông tin")
+                                .setBackgroundColorRes(R.color.red)
+                                .setIcon(R.drawable.ic_baseline_close_24)
+                                .enableSwipeToDismiss().setDuration(4000).show();
+                    }
+                });
+            }else{
+                HashMap<String, Boolean> hoatDongSinhVien = sinhViens[0].getHoatdong();
+                String[] hoatDong = suKiens[0].getHoatdong();
+                for(String hoatDongString : hoatDong){
+                    if(!hoatDongSinhVien.containsKey(hoatDongString)){
+                        return false;
+                    }
+                }
+                return true;
+            }
+           return null;
+        }
+        public Boolean checkNamSinhVien(){
+            String namNhapHoc = maSinhVien.substring(0,2);
+            Integer namNhapHocInt = Integer.valueOf(namNhapHoc);
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            Integer yearString = Integer.valueOf(Integer.toString(year).substring(2));
+            int yearCheck = yearString-namNhapHocInt;
+            if (yearCheck ==0){
+                return true;
+            }else{
+                return false;
+            }
         }
     }
+
 }
