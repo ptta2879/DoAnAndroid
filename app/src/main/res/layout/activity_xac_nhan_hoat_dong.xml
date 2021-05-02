@@ -4,12 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ThemVe">
+    tools:context=".XacNhanHoatDong">
 
     <com.budiyev.android.codescanner.CodeScannerView
-        android:id="@+id/scannerThemVe"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/xacNhanHoatDong"
         app:autoFocusButtonColor="@android:color/white"
         app:autoFocusButtonVisible="true"
         app:flashButtonColor="@android:color/white"
@@ -21,9 +19,11 @@
         app:frameCornersSize="50dp"
         app:frameSize="0.9"
         app:frameThickness="2dp"
+        app:maskColor="#77000000"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:maskColor="#77000000" />
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

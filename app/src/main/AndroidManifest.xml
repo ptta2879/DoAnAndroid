@@ -13,7 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QuetMa"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ThemVe"></activity>
+        <activity android:name=".XacNhanHoatDong"></activity>
+        <activity android:name=".ThemVe" />
         <activity android:name=".ThongTinVe" />
         <activity android:name=".MenuChucNang" />
         <activity android:name=".Login">

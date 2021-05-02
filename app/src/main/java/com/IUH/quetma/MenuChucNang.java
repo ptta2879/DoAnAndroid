@@ -96,6 +96,21 @@ public class MenuChucNang extends AppCompatActivity {
                 }
             }
         });
+        chuNang4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (phanQuyen == 2){
+                    Intent intent = new Intent(MenuChucNang.this,XacNhanHoatDong.class);
+                    startActivity(intent);
+                }else {
+                    Alerter.create(MenuChucNang.this)
+                            .setTitle("Thông Báo").setText("Không có quyền thực hiện điều này")
+                            .setBackgroundColorRes(R.color.red)
+                            .setIcon(R.drawable.ic_baseline_close_24)
+                            .enableSwipeToDismiss().setDuration(4000).show();
+                }
+            }
+        });
         chuNang2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
