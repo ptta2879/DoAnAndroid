@@ -1,4 +1,4 @@
-package com.IUH.quetma;
+package com.IUH.FastEvent.Model;
 
 public class CongTacVien {
     private String email;

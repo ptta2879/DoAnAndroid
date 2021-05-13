@@ -1,4 +1,4 @@
-package com.IUH.quetma;
+package com.IUH.FastEvent.Web3j;
 
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
@@ -65,9 +65,9 @@ public class Ownable_sol_Ownable extends Contract {
     }
 
     public List<OwnershipTransferredEventResponse> getOwnershipTransferredEvents(TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = extractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, transactionReceipt);
+        List<EventValuesWithLog> valueList = extractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, transactionReceipt);
         ArrayList<OwnershipTransferredEventResponse> responses = new ArrayList<OwnershipTransferredEventResponse>(valueList.size());
-        for (Contract.EventValuesWithLog eventValues : valueList) {
+        for (EventValuesWithLog eventValues : valueList) {
             OwnershipTransferredEventResponse typedResponse = new OwnershipTransferredEventResponse();
             typedResponse.log = eventValues.getLog();
             typedResponse.previousOwner = (String) eventValues.getIndexedValues().get(0).getValue();
@@ -81,7 +81,7 @@ public class Ownable_sol_Ownable extends Contract {
         return web3j.ethLogFlowable(filter).map(new Function<Log, OwnershipTransferredEventResponse>() {
             @Override
             public OwnershipTransferredEventResponse apply(Log log) {
-                Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, log);
+                EventValuesWithLog eventValues = extractEventParametersWithLog(OWNERSHIPTRANSFERRED_EVENT, log);
                 OwnershipTransferredEventResponse typedResponse = new OwnershipTransferredEventResponse();
                 typedResponse.log = log;
                 typedResponse.previousOwner = (String) eventValues.getIndexedValues().get(0).getValue();

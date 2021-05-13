@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.IUH.quetma">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.IUH.FastEvent">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -8,14 +9,18 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/ten_app"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.QuetMa"
-        android:usesCleartextTraffic="true">
-        <activity android:name=".XacNhanHoatDong"></activity>
-        <activity android:name=".ThemVe" />
-        <activity android:name=".ThongTinVe" />
+        android:usesCleartextTraffic="true"
+        tools:replace="android:icon,android:label"
+        tools:targetApi="m">
+        <activity android:name=".ThongTinSinhVien1" android:theme="@style/Theme.QuetMa.Slidr"/>
+        <activity android:name=".GiaoDichSinhVien1" android:theme="@style/Theme.QuetMa.Slidr" />
+        <activity android:name=".XacNhanHoatDong" android:theme="@style/Theme.QuetMa.Slidr"  />
+        <activity android:name=".ThemVe" android:theme="@style/Theme.QuetMa.Slidr"/>
+        <activity android:name=".ThongTinVe" android:theme="@style/Theme.QuetMa.Slidr"/>
         <activity android:name=".MenuChucNang" />
         <activity android:name=".Login">
             <intent-filter>
@@ -24,7 +29,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity" android:theme="@style/Theme.QuetMa.Slidr"/>
 
         <meta-data
             android:name="preloaded_fonts"

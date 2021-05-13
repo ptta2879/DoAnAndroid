@@ -1,24 +1,27 @@
-package com.IUH.quetma;
+package com.IUH.FastEvent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 
+import com.IUH.FastEvent.Model.SinhVien;
+import com.IUH.FastEvent.Model.SuKien;
+import com.IUH.FastEvent.Web3j.Sukien_sol_Sukien;
+import com.IUH.FastEvent.Web3j.ThongTinWeb3;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 import com.google.zxing.Result;
+import com.r0adkll.slidr.Slidr;
 import com.tapadoo.alerter.Alerter;
 
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.tx.gas.ContractGasProvider;
-import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -41,6 +45,7 @@ interface GetSuKien{
     SuKien getSuKien() throws IOException;
 }
 public class ThemVe extends AppCompatActivity {
+    private SweetAlertDialog pDialog;
     private ExecutorService executorService;
     private static final int REQUEST_CAMERA = 1;
     private CodeScanner mCodeScanner;
@@ -48,6 +53,7 @@ public class ThemVe extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_them_ve);
+        Slidr.attach(this);
         executorService = Executors.newFixedThreadPool(1);
         CodeScannerView codeScannerView = findViewById(R.id.scannerThemVe);
         mCodeScanner = new CodeScanner(this, codeScannerView);
@@ -57,6 +63,11 @@ public class ThemVe extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        pDialog = new SweetAlertDialog(ThemVe.this, SweetAlertDialog.PROGRESS_TYPE);
+                        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                        pDialog.setTitleText("Đang xử lý");
+                        pDialog.setCancelable(false);
+                        pDialog.show();
                         executorService.submit(new TaoVe(result.getText()));
                     }
                 });
@@ -143,20 +154,34 @@ public class ThemVe extends AppCompatActivity {
                     Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,
                             web3j,
                             thongTinWeb3.getCredentialsWallet(), new StaticGasProvider(ThongTinWeb3.GAS_PRICE,ThongTinWeb3.GAS_LIMIT));
+
                     BigInteger mssvInter = new BigInteger(maSinhVien);
                     if(thongTinSinhVien.getHovaten() != null && thongTinSinhVien.getTen() != null
                             && thongTinSinhVien.getMave() != null
-                            && thongTinSuKien.getMasukien() != null){
+                            && thongTinSuKien.getMasukien() != null && thongTinSuKien.getChongoi() != null){
                         try {
-                            sukien_sol_sukien.createVe(mssvInter,nguoiTao,thongTinSinhVien.getHovaten(),thongTinSinhVien.getTen(),thongTinSuKien.getMasukien(),thongTinSinhVien.getMave()).send();
-                            Alerter.create(ThemVe.this)
-                                    .setTitle("Thông Báo").setText("Xác nhận vé thành công")
-                                    .setBackgroundColorRes(R.color.success)
-                                    .setIcon(R.drawable.ic_baseline_check)
-                                    .enableSwipeToDismiss().setDuration(4000).show();
+                            BigInteger ve = sukien_sol_sukien.veMapping(thongTinSuKien.getMasukien()).send();
+                            BigInteger choGoi = BigInteger.valueOf(thongTinSuKien.getChongoi().longValue());
+                            if(ve.compareTo(choGoi) == 0){
+                                pDialog.cancel();
+                                Alerter.create(ThemVe.this)
+                                        .setTitle("Thông Báo").setText("Số lượng vé đã đủ")
+                                        .setBackgroundColorRes(R.color.red)
+                                        .setIcon(R.drawable.ic_baseline_close_24)
+                                        .enableSwipeToDismiss().setDuration(4000).show();
+                            }else{
+                                sukien_sol_sukien.createVe(mssvInter,nguoiTao,thongTinSinhVien.getHovaten(),thongTinSinhVien.getTen(),thongTinSuKien.getMasukien(),thongTinSinhVien.getMave()).send();
+                                pDialog.cancel();
+                                Alerter.create(ThemVe.this)
+                                        .setTitle("Thông Báo").setText("Xác nhận vé thành công")
+                                        .setBackgroundColorRes(R.color.success)
+                                        .setIcon(R.drawable.ic_baseline_check)
+                                        .enableSwipeToDismiss().setDuration(4000).show();
+                            }
                             web3j.shutdown();
                         } catch (Exception e) {
                             e.printStackTrace();
+                            pDialog.cancel();
                             Alerter.create(ThemVe.this)
                                     .setTitle("Thông Báo").setText("Vé đã được xác nhận")
                                     .setBackgroundColorRes(R.color.red)
@@ -165,14 +190,15 @@ public class ThemVe extends AppCompatActivity {
                             web3j.shutdown();
                         }
                     }else{
+                        pDialog.cancel();
                         Alerter.create(ThemVe.this)
                                 .setTitle("Thông Báo").setText("Không đủ thông tin")
                                 .setBackgroundColorRes(R.color.red)
                                 .setIcon(R.drawable.ic_baseline_close_24)
                                 .enableSwipeToDismiss().setDuration(4000).show();
                     }
-
                 }else{
+                    pDialog.cancel();
                     Alerter.create(ThemVe.this)
                             .setTitle("Thông Báo").setText("Không đủ điều kiện")
                             .setBackgroundColorRes(R.color.red)

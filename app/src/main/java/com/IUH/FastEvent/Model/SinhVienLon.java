@@ -1,4 +1,6 @@
-package com.IUH.quetma;
+package com.IUH.FastEvent.Model;
+
+import com.IUH.FastEvent.Model.SinhVien;
 
 public class SinhVienLon extends SinhVien {
     private String[] hoatDong;

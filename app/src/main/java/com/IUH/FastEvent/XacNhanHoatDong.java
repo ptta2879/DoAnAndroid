@@ -1,19 +1,21 @@
-package com.IUH.quetma;
+package com.IUH.FastEvent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 
+import com.IUH.FastEvent.Model.CongTacVien;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 import com.google.zxing.Result;
+import com.r0adkll.slidr.Slidr;
 import com.tapadoo.alerter.Alerter;
 
 import java.io.IOException;
@@ -22,7 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import jnr.ffi.Struct;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -35,6 +36,10 @@ public class XacNhanHoatDong extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_xac_nhan_hoat_dong);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        Slidr.attach(this);
         CodeScannerView codeScannerView = findViewById(R.id.xacNhanHoatDong);
         codeScanner = new CodeScanner(this, codeScannerView);
         codeScanner.setDecodeCallback(new DecodeCallback() {

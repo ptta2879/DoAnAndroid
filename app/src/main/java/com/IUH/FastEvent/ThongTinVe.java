@@ -1,23 +1,36 @@
-package com.IUH.quetma;
+package com.IUH.FastEvent;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.HorizontalScrollView;
+import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import com.IUH.FastEvent.Model.SinhVien;
+import com.IUH.FastEvent.Model.SuKien;
+import com.IUH.FastEvent.Web3j.Sukien_sol_Sukien;
+import com.IUH.FastEvent.Web3j.ThongTinWeb3;
 import com.google.gson.Gson;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.r0adkll.slidr.Slidr;
 
 
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.RemoteFunctionCall;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tuples.generated.Tuple4;
 import org.web3j.tuples.generated.Tuple8;
@@ -27,19 +40,18 @@ import org.web3j.tx.gas.DefaultGasProvider;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -49,10 +61,20 @@ public class ThongTinVe extends AppCompatActivity {
     private TextView nameSv,txtMssv,txtKhoa,txtLop,txtGioiTinh,txtNgaySinh,
             txtSoHuu,txtNguoiTao,txtTen,txtMaVe,txtNgayLap,txtMaSinhVien,
     txtMaSuKien,txtMaVeGiaoDich,txtMaSinhVienGiaoDich,txtNgayGiaoDich,txtMaSinhVienNhan;
+    private ImageView barCode;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thong_tin_ve);
+        SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+        pDialog.setTitleText("Loading");
+        pDialog.setCancelable(false);
+        pDialog.show();
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        Slidr.attach(this);
         AnhXa();
         Intent intent = getIntent();
         mssv = intent.getStringExtra("mssv");
@@ -70,10 +92,11 @@ public class ThongTinVe extends AppCompatActivity {
             List idLichSu = thongTinLichSu.get();
             executorService.execute(new TimLichSu(idLichSu));
 
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (ExecutionException | InterruptedException | WriterException e) {
             e.printStackTrace();
         }
         executorService.shutdown();
+        pDialog.cancel();
     }
     static class GetUrl implements Callable<SinhVien>{
         private final String url ;
@@ -134,6 +157,7 @@ public class ThongTinVe extends AppCompatActivity {
                                                                             ,thongTinWeb3.getCredentialsWallet()
                                                                             ,new DefaultGasProvider());
             List a = sukien_sol_sukien.timLinhSu(maVe).send();
+            web3j.shutdown();
             return a;
         }
     }
@@ -188,6 +212,7 @@ public class ThongTinVe extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            web3j.shutdown();
         }
     }
     public void AnhXa(){
@@ -204,8 +229,9 @@ public class ThongTinVe extends AppCompatActivity {
         txtNgayLap=(TextView) findViewById(R.id.ngayLap);
         txtMaSinhVien=(TextView) findViewById(R.id.mssvVe);
         txtMaSuKien=(TextView) findViewById(R.id.maSuKien);
+        barCode =(ImageView) findViewById(R.id.code39MaSinhVien);
     }
-    protected void showSinhVien(SinhVien sinhvien){
+    protected void showSinhVien(SinhVien sinhvien) throws WriterException {
         Integer gioiTinh = sinhvien.getGoitinh();
         String hoVaTen = sinhvien.getHovaten();
         String khoa = sinhvien.getKhoa();
@@ -214,6 +240,11 @@ public class ThongTinVe extends AppCompatActivity {
         String ngaysinh = sinhvien.getNgaySinh();
         String ten = sinhvien.getTen();
         String fullName = hoVaTen+ " " + ten;
+        MultiFormatWriter writer = new MultiFormatWriter();
+        BitMatrix bitMatrix = writer.encode(mssvGetSinhVien, BarcodeFormat.CODE_39,600,150);
+        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+        Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+        barCode.setImageBitmap(bitmap);
         if(gioiTinh ==1 ){
             txtGioiTinh.setText("Nam");
         }
@@ -228,38 +259,52 @@ public class ThongTinVe extends AppCompatActivity {
 
     }
     protected void showThongTinVe(Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> info){
-        Boolean soHuu = info.component8();
-        BigInteger mssvGetBlockChain = info.component1();
-        String mssvGetBlockChainString = mssvGetBlockChain.toString();
-        String nguoiTao = info.component2();
-        String maSuKien = info.component3();
-        String ho = info.component4();
-        String ten = info.component5();
-        String maVe = info.component6();
-        BigInteger dateTime = info.component7();
-        String fullName = ho+" "+ten;
-        long dateTimeLong = dateTime.longValue() * 1000;
-        String dateTimeString;
-        Date ngayLap = new Date(dateTimeLong);
-        TimeZone timeZoneVN = TimeZone.getTimeZone("Asia/Ho_Chi_Minh") ;
-        @SuppressLint("SimpleDateFormat")
-        SimpleDateFormat ngayLapFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-        ngayLapFormat.setTimeZone(timeZoneVN);
-        dateTimeString = ngayLapFormat.format(ngayLap);
-        if (soHuu){
-            txtSoHuu.setText("Sở hữu vé");
+        if (info.getSize() == 0){
+            String thongTinKhongCo = "Không Có Thông Tin Về Vé";
+            txtMaVe.setText(thongTinKhongCo);
+            txtMaVe.setTextSize(getResources().getDimension(R.dimen.text_size_thong_tin_ve));
+            Typeface typeface = ResourcesCompat.getFont(this, R.font.roboto_thin);
+            txtMaVe.setTypeface(typeface);
+            LinearLayout thongTin1 = findViewById(R.id.chiTietThongTinVe1);
+            LinearLayout thongTin2 = findViewById(R.id.chiTietThongTinVe2);
+            thongTin1.setVisibility(View.GONE);
+            thongTin2.setVisibility(View.GONE);
         }else{
-            txtSoHuu.setText("Không sở hữu");
+            Boolean soHuu = info.component8();
+            BigInteger mssvGetBlockChain = info.component1();
+            String mssvGetBlockChainString = mssvGetBlockChain.toString();
+            String nguoiTao = info.component2();
+            String maSuKien = info.component3();
+            String ho = info.component4();
+            String ten = info.component5();
+            String maVe = info.component6();
+            BigInteger dateTime = info.component7();
+            String fullName = ho+" "+ten;
+            long dateTimeLong = dateTime.longValue() * 1000;
+            String dateTimeString;
+            Date ngayLap = new Date(dateTimeLong);
+            TimeZone timeZoneVN = TimeZone.getTimeZone("Asia/Ho_Chi_Minh") ;
+            @SuppressLint("SimpleDateFormat")
+            SimpleDateFormat ngayLapFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+            ngayLapFormat.setTimeZone(timeZoneVN);
+            dateTimeString = ngayLapFormat.format(ngayLap);
+            if (soHuu){
+                txtSoHuu.setTextColor(Color.GREEN);
+                txtSoHuu.setText("Vé Hợp Lệ");
+            }else{
+                txtSoHuu.setTextColor(Color.RED);
+                txtSoHuu.setText("Không Sở Hữu");
+            }
+            txtNguoiTao.setText(nguoiTao);
+            txtTen.setText(fullName);
+            txtMaVe.setText(maVe);
+            if(dateTime.intValue() == 0){
+                txtNgayLap.setText("");
+            }else{
+                txtNgayLap.setText(dateTimeString);
+            }
+            txtMaSinhVien.setText(mssvGetBlockChainString);
+            txtMaSuKien.setText(maSuKien);
         }
-        txtNguoiTao.setText(nguoiTao);
-        txtTen.setText(fullName);
-        txtMaVe.setText(maVe);
-        if(dateTime.intValue() == 0){
-            txtNgayLap.setText("");
-        }else{
-            txtNgayLap.setText(dateTimeString);
-        }
-        txtMaSinhVien.setText(mssvGetBlockChainString);
-        txtMaSuKien.setText(maSuKien);
     }
 }

@@ -1,7 +1,6 @@
-package com.IUH.quetma;
+package com.IUH.FastEvent.Web3j;
 
 import org.web3j.crypto.Credentials;
-import org.web3j.tx.gas.ContractGasProvider;
 
 import java.math.BigInteger;
 

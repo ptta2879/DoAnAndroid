@@ -6,34 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".MenuChucNang">
 
-    <ImageView
-        android:id="@+id/backChucNang"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/backchucnang" />
+        <ImageView
+            android:id="@+id/backChucNang"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/backgroud_menu_sang" />
 
-    <io.alterac.blurkit.BlurLayout
-        android:id="@+id/blurLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_centerInParent="true"
-        app:blk_blurRadius="3"
-        app:blk_downscaleFactor="0.12"
-        app:blk_fps="0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
 
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,38 +30,54 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/logoChucNag"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="102dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="52dp"
-                android:layout_marginEnd="8dp"
-                android:contentDescription="@string/desLogo"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/logo_dark" />
+                android:layout_height="wrap_content">
 
 
-            <TextView
-                android:id="@+id/txtChucNang"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/txtChucNang"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/logoChucNag" />
+                <TextView
+                    android:id="@+id/txtChucNang"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="36dp"
+                    android:fontFamily="sans-serif-black"
+                    android:padding="5dp"
+                    android:text="@string/txtChucNang"
+                    android:textColor="@color/white"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@+id/dangxuat"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/chaoUser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="44dp"
+                    android:padding="10dp"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/txtChucNang"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <ImageButton
+                    android:id="@+id/dangxuat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="48dp"
+                    android:background="@drawable/ic_baseline_arrow_back_24"
+                    android:text="Đăng Xuất"
+                    android:textAllCaps="false"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <GridLayout
                 android:layout_width="match_parent"
@@ -89,31 +94,40 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="12dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="6dp">
-
-                    <LinearLayout
-
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="0dp">
+                    <eightbitlab.com.blurview.BlurView
+                        android:id="@+id/genaral_blur"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:background="@color/backgroud_color_menuchucnang">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:contentDescription="Xacnhan"
+                                app:srcCompat="@drawable/xacnhanve" />
 
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:contentDescription="Xacnhan"
-                            app:srcCompat="@drawable/xacnhanve" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:textStyle="bold"
+                                android:text="Xác nhận vé"
+                                android:textColor="#6f6f6f"
+                                android:textSize="18sp" />
+                        </LinearLayout>
+                    </eightbitlab.com.blurview.BlurView>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Xác nhận vé"
-                            android:textColor="#6f6f6f"
-                            android:textSize="18sp" />
-                    </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
@@ -123,30 +137,40 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="12dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="6dp">
-
-                    <LinearLayout
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="0dp">
+                    <eightbitlab.com.blurview.BlurView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <ImageView
+                        android:background="@color/backgroud_color_menuchucnang">
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="Xacnhan"
-                            app:srcCompat="@drawable/kiemtrave" />
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Kiểm tra vé"
-                            android:textColor="#6f6f6f"
-                            android:textSize="18sp" />
-                    </LinearLayout>
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="Xacnhan"
+                                app:srcCompat="@drawable/kiemtrave" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:textStyle="bold"
+                                android:text="Kiểm tra vé"
+                                android:textColor="#6f6f6f"
+                                android:textSize="18sp" />
+                        </LinearLayout>
+                    </eightbitlab.com.blurview.BlurView>
+
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
@@ -156,30 +180,39 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="12dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="6dp">
-
-                    <LinearLayout
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="0dp">
+                    <eightbitlab.com.blurview.BlurView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <ImageView
+                        android:background="@color/backgroud_color_menuchucnang">
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="GiaoDich"
-                            app:srcCompat="@drawable/giaodich" />
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Giao dịch vé"
-                            android:textColor="#6f6f6f"
-                            android:textSize="18sp" />
-                    </LinearLayout>
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="GiaoDich"
+                                app:srcCompat="@drawable/giaodich" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:textStyle="bold"
+                                android:text="Giao dịch vé"
+                                android:textColor="#6f6f6f"
+                                android:textSize="18sp" />
+                        </LinearLayout>
+                    </eightbitlab.com.blurview.BlurView>
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
@@ -189,44 +222,58 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="12dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="6dp">
-
-                    <LinearLayout
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="0dp">
+                    <eightbitlab.com.blurview.BlurView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <ImageView
+                        android:background="@color/backgroud_color_menuchucnang">
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:contentDescription="HoatDong"
-                            app:srcCompat="@drawable/hoatdong" />
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Hoạt động"
-                            android:textColor="#6f6f6f"
-                            android:textSize="18sp" />
-                    </LinearLayout>
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="HoatDong"
+                                app:srcCompat="@drawable/hoatdong" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:textStyle="bold"
+                                android:text="Hoạt động"
+                                android:textColor="#6f6f6f"
+                                android:textSize="18sp" />
+                        </LinearLayout>
+                    </eightbitlab.com.blurview.BlurView>
                 </androidx.cardview.widget.CardView>
             </GridLayout>
-
-            <Button
-                android:id="@+id/dangxuat"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="28dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="28dp"
-                android:layout_marginBottom="12dp"
-                android:background="@drawable/bglogin"
-                android:text="Đăng Xuất"
-                android:textAllCaps="false" />
+                android:layout_height="match_parent"
+                >
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ImageView
+                android:id="@+id/logoChucNag"
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="50dp"
+                android:contentDescription="@string/desLogo"
+                app:srcCompat="@drawable/logo_dark" />
+
         </LinearLayout>
 
     </ScrollView>

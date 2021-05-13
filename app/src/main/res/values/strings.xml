@@ -1,4 +1,5 @@
 <resources>
+    <string name="ten_app">Fast Event</string>
     <string name="app_name">QuetMa</string>
     <string name="title_activity_login">Login</string>
     <string name="prompt_email">Email</string>
@@ -15,5 +16,5 @@
     <string name="desLogo">LogoFastEven</string>
     <string name="txtChao">Chào các cộng tác viên</string>
     <string name="desNen">NenLogin</string>
-    <string name="txtChucNang">Chọn chức năng ở dưới</string>
+    <string name="txtChucNang">Trang Chủ</string>
 </resources>
