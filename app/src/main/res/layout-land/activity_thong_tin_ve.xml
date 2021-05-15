@@ -330,9 +330,9 @@
                         android:layout_marginTop="20dp"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:id="@+id/chiTietThongTinVe2">
                         <LinearLayout
-                            android:id="@+id/chiTietThongTinVe2"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"

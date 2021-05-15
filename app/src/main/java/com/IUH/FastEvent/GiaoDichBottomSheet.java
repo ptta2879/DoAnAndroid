@@ -26,6 +26,7 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.StaticGasProvider;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -33,7 +34,9 @@ import java.util.concurrent.ExecutorService;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-
+interface XacNhanListener{
+    void btnXacNhan(Ve ve, BigInteger mssv1);
+}
 public class GiaoDichBottomSheet extends BottomSheetDialogFragment {
     private static final String KEY_SINHVIEN_GIAODICH = "sinhvien_object" ;
     private static final String KEY_VE_SINHVIEN1 ="sinhvien_Ve" ;
@@ -46,8 +49,8 @@ public class GiaoDichBottomSheet extends BottomSheetDialogFragment {
     public static GiaoDichBottomSheet newInstance(SinhVien sinhVien, Ve ve){
         GiaoDichBottomSheet giaoDichBottomSheet = new GiaoDichBottomSheet();
         Bundle bundle = new Bundle();
-        bundle.putParcelable(KEY_SINHVIEN_GIAODICH,sinhVien);
-        bundle.putParcelable(KEY_VE_SINHVIEN1,ve);
+        bundle.putSerializable(KEY_SINHVIEN_GIAODICH,(Serializable) sinhVien);
+        bundle.putSerializable(KEY_VE_SINHVIEN1,(Serializable) ve);
         giaoDichBottomSheet.setArguments(bundle);
         return giaoDichBottomSheet;
     }
@@ -102,12 +105,17 @@ public class GiaoDichBottomSheet extends BottomSheetDialogFragment {
             String hoVaTen = thongTinSinhVien.getHovaten() + " " + thongTinSinhVien.getTen();
             tenSinhVien2.setText(hoVaTen);
             mssvSinhVien2.setText(thongTinSinhVien.getMssv());
-            gioiTinhSinhVien2.setText(thongTinSinhVien.getGoitinh());
+            if(thongTinSinhVien.getGoitinh() ==1){
+                gioiTinhSinhVien2.setText("Nam");
+            }else{
+                gioiTinhSinhVien2.setText("Nữ");
+            }
+            if (thongTinVeSinhVien1.getSohuu()){
+                btnXacNhan.setVisibility(View.GONE);
+            }
         }
     }
-    public interface XacNhanListener{
-        void btnXacNhan(Ve ve, BigInteger mssv1);
-    }
+
 
     @Override
     public void onAttach(@NonNull Context context) {

@@ -19,6 +19,7 @@ import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.google.zxing.Result;
+import com.r0adkll.slidr.Slidr;
 import com.tapadoo.alerter.Alerter;
 
 import org.web3j.protocol.Web3j;
@@ -40,7 +41,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class GiaoDichSinhVien2 extends AppCompatActivity implements GiaoDichBottomSheet.XacNhanListener {
+public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListener {
     public static final String THONG_TIN_SINH_VIEN = "thongtinsinhvien";
     public static final String THONG_TIN_VE_SINH_VIEN1 = "thongtinvesinhvien";
     private Ve thongTinVe1;
@@ -51,8 +52,9 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements GiaoDichBott
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_giao_dich_sinh_vien1);
+        Slidr.attach(this);
         Intent intent = getIntent();
-        thongTinVe1 = (Ve) intent.getParcelableExtra(THONG_TIN_VE_SINH_VIEN1);
+        thongTinVe1 = (Ve) intent.getSerializableExtra(THONG_TIN_VE_SINH_VIEN1);
         CodeScannerView codeScannerView = findViewById(R.id.giaoDichSinhVien1);
         executorService = Executors.newFixedThreadPool(1);
         codeScanner = new CodeScanner(this, codeScannerView);
@@ -155,15 +157,17 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements GiaoDichBott
                       new SweetAlertDialog(GiaoDichSinhVien2.this, SweetAlertDialog.SUCCESS_TYPE)
                                 .setTitleText("Thành Công")
                                 .setContentText("Giao Dịch Vé Thành Công")
+                                .setConfirmButtonBackgroundColor(Color.GREEN)
                                 .setConfirmText("Xác Nhận")
                                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
                                     public void onClick(SweetAlertDialog sDialog) {
                                         web3j.shutdown();
                                         executorService.shutdown();
-                                        sDialog.cancel();
                                         Intent intent = new Intent(GiaoDichSinhVien2.this,MenuChucNang.class);
                                         startActivity(intent);
+                                        sDialog.cancel();
+                                        finish();
                                     }
                                 })
                                 .show();

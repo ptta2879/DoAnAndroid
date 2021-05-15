@@ -3,6 +3,7 @@ package com.IUH.FastEvent;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.r0adkll.slidr.Slidr;
 import com.tapadoo.alerter.Alerter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,8 +29,11 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class XacNhanHoatDong extends AppCompatActivity {
+public class XacNhanHoatDong extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
     private CodeScanner codeScanner;
     private ExecutorService executorService;
     protected String mssv;
@@ -51,17 +56,40 @@ public class XacNhanHoatDong extends AppCompatActivity {
             }
         });
         codeScannerView.setOnClickListener(new View.OnClickListener() {
+            @AfterPermissionGranted(123)
             @Override
             public void onClick(View v) {
-                codeScanner.startPreview();
+
+                String[] perms = {Manifest.permission.CAMERA};
+                if (EasyPermissions.hasPermissions(XacNhanHoatDong.this,perms)){
+                    codeScanner.startPreview();
+                }else {
+                    EasyPermissions.requestPermissions(XacNhanHoatDong.this,"Chúng tôi cần quền này để có thể quét mã sinh viên",
+                            123, perms);
+                }
+
             }
         });
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
+    }
+
+    @AfterPermissionGranted(123)
+    @Override
     protected void onResume() {
         super.onResume();
-        codeScanner.startPreview();
+        String[] perms = {Manifest.permission.CAMERA};
+        if (EasyPermissions.hasPermissions(this,perms)){
+            codeScanner.startPreview();
+        }else {
+            EasyPermissions.requestPermissions(this,"Chúng tôi cần quền này để có thể quét mã sinh viên",
+                    123, perms);
+        }
+
     }
 
     @Override
@@ -75,6 +103,19 @@ public class XacNhanHoatDong extends AppCompatActivity {
         executorService.shutdown();
         super.onStop();
     }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
+            new AppSettingsDialog.Builder(this).build().show();
+        }
+    }
+
     static class ThongBao {
         private Boolean success;
 
@@ -129,7 +170,8 @@ public class XacNhanHoatDong extends AppCompatActivity {
         }
         public void  capNhapHoatDong(String hoatDong) throws IOException {
             String mssvHoatDong = maSoSinhVien+"/"+hoatDong;
-            Request.Builder builder = new Request.Builder().url("https://ptta-cnm.herokuapp.com/taikhoan/hoatdong/" + mssvHoatDong);
+            Request.Builder builder = new Request.Builder().url("https://ptta-cnm.herokuapp.com/taikhoan/hoatdong/"
+                    + mssvHoatDong);
             Request request = builder.build();
             Response response = okHttpClient.newCall(request).execute();
             String noidDung = Objects.requireNonNull(response.body()).string();

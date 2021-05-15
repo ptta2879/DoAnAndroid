@@ -3,9 +3,10 @@ package com.IUH.FastEvent.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class SinhVien implements Parcelable {
+public class SinhVien implements Serializable  {
     private Integer gioitinh;
     private String hovaten;
     private String khoa;
@@ -49,17 +50,6 @@ public class SinhVien implements Parcelable {
         mave = in.readString();
     }
 
-    public static final Creator<SinhVien> CREATOR = new Creator<SinhVien>() {
-        @Override
-        public SinhVien createFromParcel(Parcel in) {
-            return new SinhVien(in);
-        }
-
-        @Override
-        public SinhVien[] newArray(int size) {
-            return new SinhVien[size];
-        }
-    };
 
     public void setMave(String mave) {
         this.mave = mave;
@@ -141,27 +131,4 @@ public class SinhVien implements Parcelable {
         return hoatdong;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-        if (gioitinh == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(gioitinh);
-        }
-        dest.writeString(hovaten);
-        dest.writeString(khoa);
-        dest.writeString(lop);
-        dest.writeString(mssv);
-        dest.writeString(nganh);
-        dest.writeString(ngaysinh);
-        dest.writeString(ten);
-        dest.writeString(mave);
-    }
 }

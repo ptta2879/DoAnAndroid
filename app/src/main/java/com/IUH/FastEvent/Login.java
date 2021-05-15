@@ -6,8 +6,10 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,23 +21,28 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.IUH.FastEvent.Model.Common;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Objects;
 
 
 public class Login extends AppCompatActivity {
     private static final int REQUEST_CAMERA = 1;
     private FirebaseAuth root;
     private TextView chao, chaoCongTacVien, txtDangNhap;
-    private EditText username;
-    private EditText password;
+    private TextInputLayout username;
+    private TextInputLayout password;
     private FloatingActionButton btnDangNhap;
     private ImageView imageNen,imageLogo;
-    private Animation  smalltobig,fleft, fhelper;
+    private Common common;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +56,9 @@ public class Login extends AppCompatActivity {
                     new String[] { Manifest.permission.CAMERA, Manifest.permission.INTERNET }, REQUEST_CAMERA);
             return;
         }
+        common = new Common();
         AnhXa();
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
 
-        fleft = AnimationUtils.loadAnimation(this, R.anim.fleft);
-        fhelper = AnimationUtils.loadAnimation(this, R.anim.fhelper);
 
         imageLogo.setTranslationX(400);
         chao.setTranslationX(400);
@@ -86,10 +89,19 @@ public class Login extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String usernameString  = username.getText().toString();
-                        String passwordString = password.getText().toString();
+                        String usernameString  = Objects.requireNonNull(username.getEditText()).getText().toString();
+                        String passwordString = Objects.requireNonNull(password.getEditText()).getText().toString();
                         if(usernameString.isEmpty() || passwordString.isEmpty()){
-                            Toast.makeText(Login.this, "Chưa nhập đủ username và password" ,Toast.LENGTH_SHORT).show();
+                            if(usernameString.isEmpty()){
+                                username.setError("Không được để trống");
+                            }
+                            if (passwordString.isEmpty()){
+                                password.setError("Không được để trống");
+                            }
+                            if(usernameString.isEmpty() && passwordString.isEmpty()){
+                                username.setError("Không được để trống");
+                                password.setError("Không được để trống");
+                            }
                         }else{
                             root.signInWithEmailAndPassword(usernameString, passwordString)
                                     .addOnCompleteListener(Login.this, new OnCompleteListener<AuthResult>() {
@@ -99,7 +111,6 @@ public class Login extends AppCompatActivity {
                                                 // Sign in success, update UI with the signed-in user's information
                                                 Intent ax = new Intent(Login.this, MenuChucNang.class);
                                                 startActivity(ax);
-                                                overridePendingTransition(R.anim.fleft,R.anim.fhelper);
                                                 finish();
                                             } else {
                                                 // If sign in fails, display a message to the user.
@@ -123,20 +134,27 @@ public class Login extends AppCompatActivity {
         if ( root.getCurrentUser() != null){
             Intent ax = new Intent(Login.this, MenuChucNang.class);
             startActivity(ax);
-            overridePendingTransition(R.anim.fleft,R.anim.fhelper);
+            finish();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(common,intentFilter);
     }
 
     @Override
     protected void onStop() {
         AnhXa();
-
         super.onStop();
+        unregisterReceiver(common);
     }
 
     public void AnhXa(){
-        username = (EditText) findViewById(R.id.username);
-        password = (EditText) findViewById(R.id.password);
+        username = (TextInputLayout) findViewById(R.id.username);
+        password = (TextInputLayout) findViewById(R.id.password);
         btnDangNhap = (FloatingActionButton) findViewById(R.id.dangnhap);
         imageNen = (ImageView) findViewById(R.id.imageView2);
         imageLogo = (ImageView) findViewById(R.id.imageView);
@@ -144,4 +162,5 @@ public class Login extends AppCompatActivity {
         chaoCongTacVien = (TextView) findViewById(R.id.xinChaoCongTacVien);
         txtDangNhap = findViewById(R.id.textDangNhap);
     }
+
 }

@@ -15,6 +15,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.IUH.FastEvent.Model.SinhVien;
@@ -22,6 +23,7 @@ import com.IUH.FastEvent.Model.SuKien;
 import com.IUH.FastEvent.Model.Ve;
 import com.IUH.FastEvent.Web3j.Sukien_sol_Sukien;
 import com.IUH.FastEvent.Web3j.ThongTinWeb3;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -37,6 +39,8 @@ import org.web3j.tuples.generated.Tuple8;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.io.SerializablePermission;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,12 +61,13 @@ import okhttp3.Response;
 
 public class ThongTinSinhVien1 extends AppCompatActivity {
     private ImageView imgBarCode;
-    private Button nutGiaoDich;
+    private FloatingActionButton nutGiaoDich;
     private TextView mssvSinhVien1,tenSinhVien1,gioiTinhSinhVien1,khoaSinhVien1,lopSinhVien1,
             ngaySinhSinhVien1,soHuuSinhVien1,maVeSinhVien1,nguoiTaoVeSinhVien1,maSuKienSinhVien1,ngayLapVeSinhVien1;
     private String mssv;
     private SinhVien thongTinSinhVien;
     private Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> thongtinVe;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,14 +86,14 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
                 = executorService.submit(new ThongTinVe());
         try {
             thongTinSinhVien = threadSinhVien.get();
-            thongtinVe
-                    = threadVe.get();
+            thongtinVe = threadVe.get();
             if(thongTinSinhVien.getGoitinh() != null && thongTinSinhVien.getHovaten() != null &&
                     thongTinSinhVien.getKhoa() != null &&
                     thongTinSinhVien.getLop() != null &&
                     thongTinSinhVien.getMssv() != null && thongTinSinhVien.getNganh() != null &&
                     thongTinSinhVien.getNgaySinh() != null){
-                showThongTin(thongTinSinhVien, thongtinVe);
+                showThongTin(thongTinSinhVien);
+                showVe(thongtinVe);
             }else{
                 new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
                         .setTitleText("Thông Báo")
@@ -111,21 +116,28 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
                     .setBackgroundColorRes(R.color.red)
                     .setIcon(R.drawable.ic_baseline_close_24)
                     .enableSwipeToDismiss().setDuration(4000).show();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    nutGiaoDich.setVisibility(View.GONE);
+                }
+            });
         }
         nutGiaoDich.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Ve ve = new Ve(thongtinVe);
                 Intent intentSinhVien2 = new Intent(ThongTinSinhVien1.this, GiaoDichSinhVien2.class);
-                intentSinhVien2.putExtra(GiaoDichSinhVien2.THONG_TIN_SINH_VIEN, thongTinSinhVien);
+                intentSinhVien2.putExtra(GiaoDichSinhVien2.THONG_TIN_SINH_VIEN,thongTinSinhVien);
                 intentSinhVien2.putExtra(GiaoDichSinhVien2.THONG_TIN_VE_SINH_VIEN1, ve);
                 startActivity(intentSinhVien2);
+                executorService.shutdown();
+
             }
         });
 
     }
-    private void showThongTin(SinhVien sinhVien,Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> ve ){
-
+    private void showVe(Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> ve){
         String nguoiTao = ve.component2();
         String maSuKien = ve.component3();
         String maVe = ve.component6();
@@ -138,25 +150,11 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
         SimpleDateFormat ngayLapFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
         ngayLapFormat.setTimeZone(timeZoneVN);
         dateTimeString = ngayLapFormat.format(ngayLap);
-        MultiFormatWriter writer = new MultiFormatWriter();
-        try {
-            BitMatrix bitMatrix = writer.encode(mssv,BarcodeFormat.CODE_39,600,150);
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-            imgBarCode.setImageBitmap(bitmap);
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
-        mssvSinhVien1.setText(mssv);
-        tenSinhVien1.setText(sinhVien.getHovaten());
-        gioiTinhSinhVien1.setText(sinhVien.getGoitinh());
-        khoaSinhVien1.setText(sinhVien.getKhoa());
-        lopSinhVien1.setText(sinhVien.getLop());
-        ngaySinhSinhVien1.setText(sinhVien.getNgaySinh());
-        if (ve.getSize() == 0){
+        if (!ve.component8() && ve.component1().compareTo(new BigInteger("0")) == 0 && ve.component2().isEmpty() && ve.component3().isEmpty()
+                && ve.component4().isEmpty() && ve.component5().isEmpty() && ve.component6().isEmpty()
+                && ve.component7().compareTo(new BigInteger("0")) == 0){
             String thongTinKhongCo = "Không Có Thông Tin Vé";
             maVeSinhVien1.setText(thongTinKhongCo);
-            maVeSinhVien1.setTextSize(getResources().getDimension(R.dimen.text_size_thong_tin_ve));
             Typeface typeface = ResourcesCompat.getFont(this, R.font.roboto_thin);
             maVeSinhVien1.setTypeface(typeface);
             LinearLayout thongTin1 = findViewById(R.id.chiTietThongTinVeSinhVien1);
@@ -177,20 +175,43 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
             ngayLapVeSinhVien1.setText(dateTimeString);
         }
     }
+    private void showThongTin(SinhVien sinhVien ){
+
+        MultiFormatWriter writer = new MultiFormatWriter();
+        try {
+            BitMatrix bitMatrix = writer.encode(mssv,BarcodeFormat.CODE_39,600,150);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+            imgBarCode.setImageBitmap(bitmap);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+        String fullname = sinhVien.getHovaten() + " " +sinhVien.getTen();
+        mssvSinhVien1.setText(mssv);
+        tenSinhVien1.setText(fullname);
+        if(sinhVien.getGoitinh() == 1 ){
+            gioiTinhSinhVien1.setText("Nam");
+        }else{
+            gioiTinhSinhVien1.setText("Nữ");
+        }
+        khoaSinhVien1.setText(sinhVien.getKhoa());
+        lopSinhVien1.setText(sinhVien.getLop());
+        ngaySinhSinhVien1.setText(sinhVien.getNgaySinh());
+    }
     private void AnhXa(){
-        nutGiaoDich = findViewById(R.id.nutSinhVien1);
+        nutGiaoDich =(FloatingActionButton) findViewById(R.id.nutSinhVien1);
         imgBarCode = findViewById(R.id.imageSinhVien1);
         mssvSinhVien1 = (TextView) findViewById(R.id.mssvSinhVien1);
         tenSinhVien1 = (TextView) findViewById(R.id.thongTinTenSinhVien1);
         gioiTinhSinhVien1 = (TextView) findViewById(R.id.thongTinGioiTinhSinhVien1);
         khoaSinhVien1 = (TextView) findViewById(R.id.thongTinKhoaSinhVien1);
-        lopSinhVien1 = findViewById(R.id.thongTinLopSinhVien1);
+        lopSinhVien1 = (TextView) findViewById(R.id.thongTinLopSinhVien1);
         ngaySinhSinhVien1 = findViewById(R.id.thongTinNgaySinhSinhVien1);
-        soHuuSinhVien1 = findViewById(R.id.thongTinSoHuuSinhVien1);
-        maVeSinhVien1 = findViewById(R.id.thongTinMaVeSinhVien1);
-        nguoiTaoVeSinhVien1 = findViewById(R.id.thongTinNguoiTaoVeSinhVien1);
-        maSuKienSinhVien1 = findViewById(R.id.thongTinMaSuKienSinhVien1);
-        ngayLapVeSinhVien1 = findViewById(R.id.thongTinNgayLapSinhVien1);
+        soHuuSinhVien1 = (TextView) findViewById(R.id.thongTinSoHuuSinhVien1);
+        maVeSinhVien1 = (TextView) findViewById(R.id.thongTinMaVeSinhVien1);
+        nguoiTaoVeSinhVien1 = (TextView) findViewById(R.id.thongTinNguoiTaoVeSinhVien1);
+        maSuKienSinhVien1 = (TextView) findViewById(R.id.thongTinMaSuKienSinhVien1);
+        ngayLapVeSinhVien1 = (TextView) findViewById(R.id.thongTinNgayLapSinhVien1);
     }
     class ThongTinSinhVien implements Callable<SinhVien> {
         OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
@@ -232,4 +253,5 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
             return suKiens[0].getMasukien();
         }
     }
+
 }

@@ -5,6 +5,7 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -16,20 +17,39 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:icon,android:label"
         tools:targetApi="m">
-        <activity android:name=".ThongTinSinhVien1" android:theme="@style/Theme.QuetMa.Slidr"/>
-        <activity android:name=".GiaoDichSinhVien1" android:theme="@style/Theme.QuetMa.Slidr" />
-        <activity android:name=".XacNhanHoatDong" android:theme="@style/Theme.QuetMa.Slidr"  />
-        <activity android:name=".ThemVe" android:theme="@style/Theme.QuetMa.Slidr"/>
-        <activity android:name=".ThongTinVe" android:theme="@style/Theme.QuetMa.Slidr"/>
-        <activity android:name=".MenuChucNang" />
-        <activity android:name=".Login">
+        <activity android:name=".OnboardingScreen"></activity>
+        <activity android:name=".SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" android:theme="@style/Theme.QuetMa.Slidr"/>
+        <activity
+            android:name=".ThongTinSinhVien1"
+            android:theme="@style/Theme.QuetMa.Slidr" />
+        <activity
+            android:name=".GiaoDichSinhVien1"
+            android:theme="@style/Theme.QuetMa.Slidr" />
+        <activity
+            android:name=".XacNhanHoatDong"
+            android:theme="@style/Theme.QuetMa.Slidr" />
+        <activity
+            android:name=".ThemVe"
+            android:theme="@style/Theme.QuetMa.Slidr" />
+        <activity
+            android:name=".ThongTinVe"
+            android:theme="@style/Theme.QuetMa.Slidr" />
+        <activity android:name=".MenuChucNang" />
+        <activity
+            android:name=".Login"
+            android:windowSoftInputMode="adjustResize"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.QuetMa.Slidr" />
+        <activity
+            android:name=".GiaoDichSinhVien2"
+            android:theme="@style/Theme.QuetMa.Slidr" />
 
         <meta-data
             android:name="preloaded_fonts"

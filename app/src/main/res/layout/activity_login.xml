@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
     tools:context=".Login"
     >
@@ -20,68 +20,82 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+       android:isScrollContainer="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical" >
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/username"
-                    android:layout_width="match_parent"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
+                    android:layout_marginTop="320dp"
                     android:layout_marginEnd="30dp"
-                    android:padding="15dp"
-                    android:hint="@string/username"
-                    android:inputType="textEmailAddress"
-                    android:textColorHint="@color/gray"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="20dp"
+                    app:endIconMode="clear_text"
+                    app:errorEnabled="true"
+                    app:layout_constraintBottom_toTopOf="@+id/password"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.56" />
+                    app:layout_constraintTop_toTopOf="parent">
 
-                <EditText
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/username"
+                        android:inputType="textEmailAddress" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/password"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
-                    android:layout_marginTop="20dp"
                     android:layout_marginEnd="30dp"
-                    android:ems="10"
-                    android:hint="@string/passwordHint"
-                    android:importantForAutofill="no"
-                    android:inputType="textPassword"
-                    android:padding="15dp"
-                    android:textColorHint="@color/gray"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:errorEnabled="true"
+
+                    app:layout_constraintBottom_toTopOf="@+id/dangnhap"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/username"
-                    app:layout_constraintVertical_bias="0.0" />
+                    app:layout_constraintVertical_bias="0.0"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+
+                        android:hint="@string/passwordHint"
+                        android:importantForAutofill="no"
+                        android:inputType="textPassword"
+                        android:textColorHint="@color/gray" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/dangnhap"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginEnd="30dp"
                     android:backgroundTint="#4E525B"
                     android:elevation="0dp"
                     android:src="@drawable/ic_baseline_arrow_forward_24"
                     android:tintMode="@android:integer/config_mediumAnimTime"
+                    app:borderWidth="0dp"
                     app:elevation="0dp"
-                    app:fabCustomSize="80dp"
+                    app:fabCustomSize="60dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -92,27 +106,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="116dp"
+                    android:layout_marginTop="120dp"
                     android:layout_marginEnd="8dp"
                     android:text="Xin Chào"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"
                     android:textStyle="bold|italic"
-                    app:layout_constraintBottom_toTopOf="@+id/username"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.107"
+                    app:layout_constraintHorizontal_bias="0.079"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.081" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/xinChaoCongTacVien"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="36dp"
                     android:layout_marginTop="4dp"
+                    android:padding="2dp"
                     android:text="Các Cộng Tác Viên"
                     android:textColor="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.103"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
@@ -135,9 +149,9 @@
                     android:layout_alignParentStart="true"
                     android:layout_centerInParent="true"
                     android:layout_marginStart="30dp"
-                    android:layout_marginTop="30dp"
-                    android:padding="15dp"
+                    android:layout_marginTop="10dp"
                     android:fontFamily="@font/roboto"
+                    android:padding="15dp"
                     android:text="Đăng Nhập"
                     android:textColor="#191919"
                     android:textSize="20sp"

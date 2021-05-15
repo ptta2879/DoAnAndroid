@@ -66,11 +66,6 @@ public class ThongTinVe extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thong_tin_ve);
-        SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
-        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-        pDialog.setTitleText("Loading");
-        pDialog.setCancelable(false);
-        pDialog.show();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         getWindow().setStatusBarColor(Color.TRANSPARENT);
@@ -96,7 +91,6 @@ public class ThongTinVe extends AppCompatActivity {
             e.printStackTrace();
         }
         executorService.shutdown();
-        pDialog.cancel();
     }
     static class GetUrl implements Callable<SinhVien>{
         private final String url ;
@@ -259,10 +253,11 @@ public class ThongTinVe extends AppCompatActivity {
 
     }
     protected void showThongTinVe(Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> info){
-        if (info.getSize() == 0){
+        if (!info.component8() && info.component1().compareTo(new BigInteger("0")) == 0 && info.component2().isEmpty() && info.component3().isEmpty()
+                && info.component4().isEmpty() && info.component5().isEmpty() && info.component6().isEmpty()
+                && info.component7().compareTo(new BigInteger("0")) == 0){
             String thongTinKhongCo = "Không Có Thông Tin Về Vé";
             txtMaVe.setText(thongTinKhongCo);
-            txtMaVe.setTextSize(getResources().getDimension(R.dimen.text_size_thong_tin_ve));
             Typeface typeface = ResourcesCompat.getFont(this, R.font.roboto_thin);
             txtMaVe.setTypeface(typeface);
             LinearLayout thongTin1 = findViewById(R.id.chiTietThongTinVe1);

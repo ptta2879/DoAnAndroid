@@ -6,12 +6,13 @@ import android.os.Parcelable;
 
 import org.web3j.tuples.generated.Tuple8;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class Ve implements Parcelable {
+public class Ve implements Serializable{
     private BigInteger mssv;
     private String nguoiTao;
     private String masukien;
@@ -54,18 +55,6 @@ public class Ve implements Parcelable {
         byte tmpSohuu = in.readByte();
         sohuu = tmpSohuu == 0 ? null : tmpSohuu == 1;
     }
-
-    public static final Creator<Ve> CREATOR = new Creator<Ve>() {
-        @Override
-        public Ve createFromParcel(Parcel in) {
-            return new Ve(in);
-        }
-
-        @Override
-        public Ve[] newArray(int size) {
-            return new Ve[size];
-        }
-    };
 
     public void setMssv(BigInteger mssv) {
         this.mssv = mssv;
@@ -142,18 +131,4 @@ public class Ve implements Parcelable {
         return dateTimeString;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(nguoiTao);
-        dest.writeString(masukien);
-        dest.writeString(ho);
-        dest.writeString(ten);
-        dest.writeString(mave);
-        dest.writeByte((byte) (sohuu == null ? 0 : sohuu ? 1 : 2));
-    }
 }

@@ -3,6 +3,7 @@
     <array name="preloaded_fonts" translatable="false">
         <item>@font/</item>
         <item>@font/alex_brush</item>
+        <item>@font/bangers</item>
         <item>@font/coiny</item>
         <item>@font/open_sans</item>
         <item>@font/roboto</item>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
     tools:context=".Login"
     >
@@ -20,6 +20,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:isScrollContainer="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,39 +33,55 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:id="@+id/username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
                     android:layout_marginEnd="30dp"
-                    android:hint="@string/username"
-                    android:inputType="textEmailAddress"
-                    android:padding="15dp"
-                    android:textColorHint="@color/gray"
+                    app:errorEnabled="true"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.4" />
+                    app:layout_constraintVertical_bias="0.372">
 
-                <EditText
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/username"
+                        android:inputType="textEmailAddress"
+                        android:textColorHint="@color/gray" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:passwordToggleEnabled="true"
+                    app:errorEnabled="true"
                     android:layout_marginStart="30dp"
+                    android:layout_marginTop="20dp"
                     android:layout_marginEnd="30dp"
-                    android:layout_marginTop="30dp"
-                    android:padding="15dp"
-                    android:ems="10"
-                    android:hint="@string/passwordHint"
-                    android:importantForAutofill="no"
-                    android:inputType="textPassword"
-                    android:textColorHint="@color/gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/username" />
+                    app:layout_constraintTop_toBottomOf="@+id/username"
+                    app:layout_constraintVertical_bias="0.0" >
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+
+                        android:hint="@string/passwordHint"
+                        android:importantForAutofill="no"
+                        android:inputType="textPassword"
+                        android:textColorHint="@color/gray"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/dangnhap"
@@ -76,7 +93,7 @@
                     android:backgroundTint="#4E525B"
                     android:elevation="0dp"
                     android:src="@drawable/ic_baseline_arrow_forward_24"
-                    android:tint="@color/white"
+                    android:tintMode="@android:integer/config_mediumAnimTime"
                     app:elevation="0dp"
                     app:fabCustomSize="80dp"
                     app:layout_constraintEnd_toEndOf="parent"
