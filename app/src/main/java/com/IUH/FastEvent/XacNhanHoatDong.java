@@ -1,14 +1,19 @@
 package com.IUH.FastEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.IUH.FastEvent.Model.Common;
 import com.IUH.FastEvent.Model.CongTacVien;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
@@ -37,21 +42,23 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
     private CodeScanner codeScanner;
     private ExecutorService executorService;
     protected String mssv;
+    private Common common;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        common = new Common();
         setContentView(R.layout.activity_xac_nhan_hoat_dong);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
         Slidr.attach(this);
         CodeScannerView codeScannerView = findViewById(R.id.xacNhanHoatDong);
+        executorService = Executors.newFixedThreadPool(1);
         codeScanner = new CodeScanner(this, codeScannerView);
         codeScanner.setDecodeCallback(new DecodeCallback() {
             @Override
             public void onDecoded(@NonNull Result result) {
                 mssv = result.getText();
-                executorService = Executors.newFixedThreadPool(1);
+
                 executorService.execute(new HoatDong(mssv));
             }
         });
@@ -78,6 +85,13 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
         EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(common, intentFilter);
+    }
+
     @AfterPermissionGranted(123)
     @Override
     protected void onResume() {
@@ -100,8 +114,9 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
 
     @Override
     protected void onStop() {
-        executorService.shutdown();
         super.onStop();
+        unregisterReceiver(common);
+        executorService.shutdown();
     }
 
     @Override
@@ -113,6 +128,14 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
         if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
             new AppSettingsDialog.Builder(this).build().show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE){
+
         }
     }
 

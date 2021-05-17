@@ -1,7 +1,10 @@
 package com.IUH.FastEvent;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 
@@ -9,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.IUH.FastEvent.Model.Common;
 import com.IUH.FastEvent.Model.SinhVien;
 import com.IUH.FastEvent.Model.Ve;
 import com.IUH.FastEvent.Web3j.Sukien_sol_Sukien;
@@ -27,6 +31,7 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -40,18 +45,24 @@ import jnr.ffi.annotations.In;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListener {
+public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListener, EasyPermissions.PermissionCallbacks {
     public static final String THONG_TIN_SINH_VIEN = "thongtinsinhvien";
     public static final String THONG_TIN_VE_SINH_VIEN1 = "thongtinvesinhvien";
     private Ve thongTinVe1;
+    private SinhVien sinhVien2;
     private CodeScanner codeScanner;
     private ExecutorService executorService;
     SweetAlertDialog pDialog;
+    private Common common;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_giao_dich_sinh_vien1);
+        common= new Common();
         Slidr.attach(this);
         Intent intent = getIntent();
         thongTinVe1 = (Ve) intent.getSerializableExtra(THONG_TIN_VE_SINH_VIEN1);
@@ -70,9 +81,11 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListe
                         pDialog.setCancelable(false);
                         pDialog.show();
                         Future<SinhVien> futureSinhVien2 = executorService.submit(new ThongTinSinhVien(result.getText().trim()));
+
                         try {
                             pDialog.cancel();
-                            showBottomSheet(futureSinhVien2.get());
+                            sinhVien2 = futureSinhVien2.get();
+                            showBottomSheet(sinhVien2);
                         } catch (ExecutionException | InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -81,9 +94,17 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListe
             }
         });
         codeScannerView.setOnClickListener(new View.OnClickListener() {
+            @AfterPermissionGranted(123)
             @Override
             public void onClick(View v) {
-                codeScanner.startPreview();
+                String[] perms = {Manifest.permission.CAMERA};
+                if (EasyPermissions.hasPermissions(GiaoDichSinhVien2.this,perms)){
+                    codeScanner.startPreview();
+                }else{
+                    EasyPermissions.requestPermissions(GiaoDichSinhVien2.this,"Chúng tôi cần quyền Camera để có thể quét được mã sinh viên",
+                            123, perms);
+                }
+
             }
         });
     }
@@ -94,15 +115,37 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListe
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(common,intentFilter);
+    }
+
+    @AfterPermissionGranted(123)
+    @Override
     protected void onResume() {
         super.onResume();
-        codeScanner.startPreview();
+        String[] perms = {Manifest.permission.CAMERA};
+        if (EasyPermissions.hasPermissions(this,perms)){
+            codeScanner.startPreview();
+        }else{
+            EasyPermissions.requestPermissions(this,"Chúng tôi cần quyền Camera để có thể quét được mã sinh viên",
+                    123, perms);
+        }
+
     }
 
     @Override
     protected void onStop() {
         codeScanner.releaseResources();
         super.onStop();
+        unregisterReceiver(common);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this);
     }
 
     @Override
@@ -113,6 +156,25 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListe
         pDialog.setCancelable(false);
         pDialog.show();
         executorService.submit(new GiaoDich(ve,mssv1));
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
+            new AppSettingsDialog.Builder(this).build().show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE){
+        }
     }
 
     static class ThongTinSinhVien implements Callable<SinhVien>{
@@ -148,7 +210,7 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListe
             Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j
             , thongTinWeb3.getCredentialsWallet(), new StaticGasProvider(ThongTinWeb3.GAS_PRICE,ThongTinWeb3.GAS_LIMIT));
             try {
-                sukien_sol_sukien.giaoDich(ve.getMssv(),mssv1,user,ve.getHo(),ve.getTen()
+                sukien_sol_sukien.giaoDich(ve.getMssv(),mssv1,user,sinhVien2.getHovaten(),sinhVien2.getTen()
                         ,ve.getMasukien(),ve.getMave()).send();
                 pDialog.cancel();
                 runOnUiThread(new Runnable() {
@@ -157,7 +219,6 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListe
                       new SweetAlertDialog(GiaoDichSinhVien2.this, SweetAlertDialog.SUCCESS_TYPE)
                                 .setTitleText("Thành Công")
                                 .setContentText("Giao Dịch Vé Thành Công")
-                                .setConfirmButtonBackgroundColor(Color.GREEN)
                                 .setConfirmText("Xác Nhận")
                                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                     @Override
@@ -177,10 +238,11 @@ public class GiaoDichSinhVien2 extends AppCompatActivity implements XacNhanListe
             } catch (Exception e) {
                 e.printStackTrace();
                 Alerter.create(GiaoDichSinhVien2.this)
-                        .setTitle("Lỗi").setText("Sinh viên nhận vé đã có vé hoặc sinh viên giao dịch không sở hữu vé")
+                        .setTitle("Thông Báo").setText("Sinh viên nhận vé đã có vé hoặc sinh viên giao dịch không sở hữu vé")
                         .setBackgroundColorRes(R.color.red)
                         .setIcon(R.drawable.ic_baseline_close_24)
                         .enableSwipeToDismiss().setDuration(4000).show();
+                pDialog.cancel();
             }
 
         }

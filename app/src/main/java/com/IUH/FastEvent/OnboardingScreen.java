@@ -55,7 +55,6 @@ public class OnboardingScreen extends AppCompatActivity implements EasyPermissio
                 "Ứng dụng cho phép quét mã vạch trên thẻ sinh viên một cách nhanh chóng. " +
                         "Vì thế cần được cấp quyền Camera",
                 Color.parseColor("#bc90b8"), R.drawable.barcode_lon, R.drawable.barcode_icon);
-
         ArrayList<PaperOnboardingPage> elements = new ArrayList<>();
         elements.add(scr1);
         elements.add(scr2);
@@ -78,7 +77,7 @@ public class OnboardingScreen extends AppCompatActivity implements EasyPermissio
             }
 
         }else{
-            EasyPermissions.requestPermissions(this,"Chúng tôi cần quền này để có thể quét mã sinh viên",
+            EasyPermissions.requestPermissions(this,"Chúng tôi cần quyền Camera để có thể quét được mã sinh viên",
                     123, perms);
         }
     }

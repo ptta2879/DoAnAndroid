@@ -5,11 +5,14 @@ import androidx.core.content.res.ResourcesCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -18,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.IUH.FastEvent.Model.Common;
 import com.IUH.FastEvent.Model.SinhVien;
 import com.IUH.FastEvent.Model.SuKien;
 import com.IUH.FastEvent.Model.Ve;
@@ -67,10 +71,15 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
     private String mssv;
     private SinhVien thongTinSinhVien;
     private Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> thongtinVe;
-
+    private Common common;
+    private LinearLayout linearLayout;
+    private ProgressBar progressBar;
+    private CheckTienTrinh checkTienTrinh;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        common = new Common();
+        checkTienTrinh = new CheckTienTrinh();
         setContentView(R.layout.activity_thong_tin_sinh_vien1);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
@@ -78,51 +87,12 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
         Slidr.attach(this);
         AnhXa();
         ExecutorService executorService = Executors.newFixedThreadPool(2);
+        linearLayout.setVisibility(View.GONE);
         Intent intent =getIntent();
         mssv = intent.getStringExtra("mssvGiaoDich");
 
-        Future<SinhVien> threadSinhVien =  executorService.submit(new ThongTinSinhVien());
-        Future<Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean>> threadVe
-                = executorService.submit(new ThongTinVe());
-        try {
-            thongTinSinhVien = threadSinhVien.get();
-            thongtinVe = threadVe.get();
-            if(thongTinSinhVien.getGoitinh() != null && thongTinSinhVien.getHovaten() != null &&
-                    thongTinSinhVien.getKhoa() != null &&
-                    thongTinSinhVien.getLop() != null &&
-                    thongTinSinhVien.getMssv() != null && thongTinSinhVien.getNganh() != null &&
-                    thongTinSinhVien.getNgaySinh() != null){
-                showThongTin(thongTinSinhVien);
-                showVe(thongtinVe);
-            }else{
-                new SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE)
-                        .setTitleText("Thông Báo")
-                        .setContentText("Không có thông tin của sinh viên này")
-                        .setConfirmText("Xác nhận")
-                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                            @Override
-                            public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                sweetAlertDialog.cancel();
-                                Intent intent1 = new Intent(ThongTinSinhVien1.this, MenuChucNang.class);
-                                startActivity(intent1);
-                            }
-                        })
-                        .show();
-            }
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            Alerter.create(ThongTinSinhVien1.this)
-                    .setTitle("Thông Báo").setText("Xảy ra lỗi kết nối")
-                    .setBackgroundColorRes(R.color.red)
-                    .setIcon(R.drawable.ic_baseline_close_24)
-                    .enableSwipeToDismiss().setDuration(4000).show();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    nutGiaoDich.setVisibility(View.GONE);
-                }
-            });
-        }
+        executorService.submit(new ThongTinSinhVien());
+        executorService.submit(new ThongTinVe());
         nutGiaoDich.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,10 +102,31 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
                 intentSinhVien2.putExtra(GiaoDichSinhVien2.THONG_TIN_VE_SINH_VIEN1, ve);
                 startActivity(intentSinhVien2);
                 executorService.shutdown();
-
             }
         });
+    }
+    class CheckTienTrinh{
+        private boolean t1;
+        private boolean t2;
 
+        public void setT1(boolean t1) {
+            this.t1 = t1;
+        }
+
+        public void setT2(boolean t2) {
+            this.t2 = t2;
+        }
+        public void check(){
+            if (t1 && t2){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        linearLayout.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }
     }
     private void showVe(Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> ve){
         String nguoiTao = ve.component2();
@@ -153,50 +144,64 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
         if (!ve.component8() && ve.component1().compareTo(new BigInteger("0")) == 0 && ve.component2().isEmpty() && ve.component3().isEmpty()
                 && ve.component4().isEmpty() && ve.component5().isEmpty() && ve.component6().isEmpty()
                 && ve.component7().compareTo(new BigInteger("0")) == 0){
-            String thongTinKhongCo = "Không Có Thông Tin Vé";
-            maVeSinhVien1.setText(thongTinKhongCo);
-            Typeface typeface = ResourcesCompat.getFont(this, R.font.roboto_thin);
-            maVeSinhVien1.setTypeface(typeface);
-            LinearLayout thongTin1 = findViewById(R.id.chiTietThongTinVeSinhVien1);
-            thongTin1.setVisibility(View.GONE);
-            nutGiaoDich.setVisibility(View.GONE);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String thongTinKhongCo = "Không Có Thông Tin Vé";
+                    maVeSinhVien1.setText(thongTinKhongCo);
+                    LinearLayout thongTin1 = findViewById(R.id.chiTietThongTinVeSinhVien1);
+                    thongTin1.setVisibility(View.GONE);
+                    nutGiaoDich.setVisibility(View.GONE);
+                }
+            });
+
         }else {
-            if (ve.component8()){
-                soHuuSinhVien1.setTextColor(Color.GREEN);
-                soHuuSinhVien1.setText("Vé Hợp Lệ");
-            }else{
-                soHuuSinhVien1.setTextColor(Color.RED);
-                soHuuSinhVien1.setText("Không Sở Hữu");
-                nutGiaoDich.setVisibility(View.GONE);
-            }
-            maVeSinhVien1.setText(maVe);
-            nguoiTaoVeSinhVien1.setText(nguoiTao);
-            maSuKienSinhVien1.setText(maSuKien);
-            ngayLapVeSinhVien1.setText(dateTimeString);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (ve.component8()){
+                        soHuuSinhVien1.setTextColor(Color.GREEN);
+                        soHuuSinhVien1.setText("Vé Hợp Lệ");
+                    }else{
+                        soHuuSinhVien1.setTextColor(Color.RED);
+                        soHuuSinhVien1.setText("Không Sở Hữu");
+                        nutGiaoDich.setVisibility(View.GONE);
+                    }
+                    maVeSinhVien1.setText(maVe);
+                    nguoiTaoVeSinhVien1.setText(nguoiTao);
+                    maSuKienSinhVien1.setText(maSuKien);
+                    ngayLapVeSinhVien1.setText(dateTimeString);
+                }
+            });
         }
     }
     private void showThongTin(SinhVien sinhVien ){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MultiFormatWriter writer = new MultiFormatWriter();
+                try {
+                    BitMatrix bitMatrix = writer.encode(mssv,BarcodeFormat.CODE_39,600,150);
+                    BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                    Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                    imgBarCode.setImageBitmap(bitmap);
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                }
+                String fullname = sinhVien.getHovaten() + " " +sinhVien.getTen();
+                mssvSinhVien1.setText(mssv);
+                tenSinhVien1.setText(fullname);
+                if(sinhVien.getGoitinh() == 1 ){
+                    gioiTinhSinhVien1.setText("Nam");
+                }else{
+                    gioiTinhSinhVien1.setText("Nữ");
+                }
+                khoaSinhVien1.setText(sinhVien.getKhoa());
+                lopSinhVien1.setText(sinhVien.getLop());
+                ngaySinhSinhVien1.setText(sinhVien.getNgaySinh());
+            }
+        });
 
-        MultiFormatWriter writer = new MultiFormatWriter();
-        try {
-            BitMatrix bitMatrix = writer.encode(mssv,BarcodeFormat.CODE_39,600,150);
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-            imgBarCode.setImageBitmap(bitmap);
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
-        String fullname = sinhVien.getHovaten() + " " +sinhVien.getTen();
-        mssvSinhVien1.setText(mssv);
-        tenSinhVien1.setText(fullname);
-        if(sinhVien.getGoitinh() == 1 ){
-            gioiTinhSinhVien1.setText("Nam");
-        }else{
-            gioiTinhSinhVien1.setText("Nữ");
-        }
-        khoaSinhVien1.setText(sinhVien.getKhoa());
-        lopSinhVien1.setText(sinhVien.getLop());
-        ngaySinhSinhVien1.setText(sinhVien.getNgaySinh());
     }
     private void AnhXa(){
         nutGiaoDich =(FloatingActionButton) findViewById(R.id.nutSinhVien1);
@@ -212,46 +217,100 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
         nguoiTaoVeSinhVien1 = (TextView) findViewById(R.id.thongTinNguoiTaoVeSinhVien1);
         maSuKienSinhVien1 = (TextView) findViewById(R.id.thongTinMaSuKienSinhVien1);
         ngayLapVeSinhVien1 = (TextView) findViewById(R.id.thongTinNgayLapSinhVien1);
+        linearLayout = findViewById(R.id.noiDungVe);
+        progressBar = findViewById(R.id.progressBar2);
     }
-    class ThongTinSinhVien implements Callable<SinhVien> {
+    class ThongTinSinhVien implements Runnable {
         OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(20,TimeUnit.SECONDS).retryOnConnectionFailure(true).build();
         @Override
-        public SinhVien call() throws Exception {
-            String url = "https://ptta-cnm.herokuapp.com/taikhoan/" + mssv;
-            Request.Builder builder = new Request.Builder();
-            Request request  = builder.url(url).build();
-            Response response = okHttpClient.newCall(request).execute();
-            String noiDung = Objects.requireNonNull(response.body()).string();
-            Gson gson = new Gson();
-            SinhVien[] sinhViens = gson.fromJson(noiDung,SinhVien[].class);
-            return sinhViens[0];
+        public void run() {
+            try {
+                String url = "https://ptta-cnm.herokuapp.com/taikhoan/" + mssv;
+                Request.Builder builder = new Request.Builder();
+                Request request  = builder.url(url).build();
+                Response response = okHttpClient.newCall(request).execute();
+                String noiDung = Objects.requireNonNull(response.body()).string();
+                Gson gson = new Gson();
+                SinhVien[] sinhViens = gson.fromJson(noiDung,SinhVien[].class);
+                thongTinSinhVien = sinhViens[0];
+                showThongTin(thongTinSinhVien);
+                checkTienTrinh.setT1(true);
+                checkTienTrinh.check();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("Error", e.getMessage());
+                Alerter.create(ThongTinSinhVien1.this)
+                        .setTitle("Thông Báo").setText("Xảy ra lỗi kết nối")
+                        .setBackgroundColorRes(R.color.red)
+                        .setIcon(R.drawable.ic_baseline_close_24)
+                        .enableSwipeToDismiss().setDuration(4000).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nutGiaoDich.setVisibility(View.GONE);
+                    }
+                });
+            }
+
         }
     }
-    class ThongTinVe implements Callable<Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean>>{
+    class ThongTinVe implements Runnable{
         OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(20,TimeUnit.SECONDS).retryOnConnectionFailure(true).build();
+        private String getSuKien() throws IOException {
+            String url = "https://ptta-cnm.herokuapp.com/sukien/trangthai";
+            Request request = new Request.Builder().url(url).build();
+            Response response = okHttpClient.newCall(request).execute();
+            String noidung = Objects.requireNonNull(response.body()).string();
+            Gson gson = new Gson();
+            SuKien[] suKiens = gson.fromJson(noidung,SuKien[].class);
+            return suKiens[0].getMasukien();
+        }
+
         @Override
-        public Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> call() throws Exception {
+        public void run() {
             ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
             Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
             Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j,thongTinWeb3.getCredentialsWallet(),
                     new DefaultGasProvider());
             BigInteger mssvBigInteger = new BigInteger(mssv);
-            Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> duLieu
-                    = sukien_sol_sukien.searVe(mssvBigInteger,getSuKien()).send();
+            try {
+                Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> duLieu
+                        = sukien_sol_sukien.searVe(mssvBigInteger,getSuKien()).send();
+                thongtinVe = duLieu;
+                showVe(duLieu);
+                checkTienTrinh.setT2(true);
+                checkTienTrinh.check();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e("Error", e.getMessage());
+                Alerter.create(ThongTinSinhVien1.this)
+                        .setTitle("Thông Báo").setText("Xảy ra lỗi kết nối")
+                        .setBackgroundColorRes(R.color.red)
+                        .setIcon(R.drawable.ic_baseline_close_24)
+                        .enableSwipeToDismiss().setDuration(4000).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        nutGiaoDich.setVisibility(View.GONE);
+                    }
+                });
+            }
             web3j.shutdown();
-            return  duLieu;
-        }
-        private String getSuKien() throws IOException {
-            String url = "https://ptta-cnm.herokuapp.com/sukien/trangthai";
-            Request request = new Request.Builder().url(url).build();
-            Response response = okHttpClient.newCall(request).execute();
-            String noidung = response.body().string();
-            Gson gson = new Gson();
-            SuKien[] suKiens = gson.fromJson(noidung,SuKien[].class);
-            return suKiens[0].getMasukien();
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter=new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(common,intentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(common);
+    }
 }

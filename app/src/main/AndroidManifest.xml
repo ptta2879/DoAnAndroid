@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
         android:allowBackup="true"
@@ -17,8 +18,8 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:icon,android:label"
         tools:targetApi="m">
-        <activity android:name=".OnboardingScreen"></activity>
-        <activity android:name=".SplashScreen">
+        <activity android:name=".OnboardingScreen"  android:screenOrientation="portrait"/>
+        <activity android:name=".SplashScreen"  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,28 +28,35 @@
         </activity>
         <activity
             android:name=".ThongTinSinhVien1"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.QuetMa.Slidr" />
         <activity
             android:name=".GiaoDichSinhVien1"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.QuetMa.Slidr" />
         <activity
             android:name=".XacNhanHoatDong"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.QuetMa.Slidr" />
         <activity
             android:name=".ThemVe"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.QuetMa.Slidr" />
         <activity
             android:name=".ThongTinVe"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.QuetMa.Slidr" />
         <activity android:name=".MenuChucNang" />
         <activity
             android:name=".Login"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.QuetMa.Slidr" />
         <activity
             android:name=".GiaoDichSinhVien2"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.QuetMa.Slidr" />
 
         <meta-data

@@ -42,6 +42,9 @@
                     android:layout_marginTop="260dp"
                     android:layout_marginEnd="30dp"
                     android:layout_marginBottom="20dp"
+                    android:textColorHint="@color/gray"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="#000000"
                     app:endIconMode="clear_text"
                     app:errorEnabled="true"
                     app:layout_constraintBottom_toTopOf="@+id/password"
@@ -53,6 +56,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/username"
+                        android:textColor="@color/black"
                         android:inputType="textEmailAddress" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -64,7 +68,9 @@
                     android:layout_marginStart="30dp"
                     android:layout_marginEnd="30dp"
                     app:errorEnabled="true"
-
+                    android:textColorHint="@color/gray"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="#000000"
                     app:layout_constraintBottom_toTopOf="@+id/dangnhap"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -75,7 +81,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-
+                        android:textColor="@color/black"
                         android:hint="@string/passwordHint"
                         android:importantForAutofill="no"
                         android:inputType="textPassword"

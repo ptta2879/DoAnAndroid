@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -109,9 +110,6 @@ public class GiaoDichBottomSheet extends BottomSheetDialogFragment {
                 gioiTinhSinhVien2.setText("Nam");
             }else{
                 gioiTinhSinhVien2.setText("Nữ");
-            }
-            if (thongTinVeSinhVien1.getSohuu()){
-                btnXacNhan.setVisibility(View.GONE);
             }
         }
     }

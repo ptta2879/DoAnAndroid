@@ -1,13 +1,18 @@
 package com.IUH.FastEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 
+import com.IUH.FastEvent.Model.Common;
 import com.IUH.FastEvent.Model.SinhVien;
 import com.IUH.FastEvent.Model.SuKien;
 import com.IUH.FastEvent.Web3j.Sukien_sol_Sukien;
@@ -54,10 +59,12 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
     private ExecutorService executorService;
     private static final int REQUEST_CAMERA = 1;
     private CodeScanner mCodeScanner;
+    private Common common;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_them_ve);
+        common= new Common();
         Slidr.attach(this);
         executorService = Executors.newFixedThreadPool(1);
         CodeScannerView codeScannerView = findViewById(R.id.scannerThemVe);
@@ -86,7 +93,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                 if (EasyPermissions.hasPermissions(ThemVe.this, perms)){
                     mCodeScanner.startPreview();
                 }else{
-                    EasyPermissions.requestPermissions(ThemVe.this,"Chúng tôi cần quền này để có thể quét mã sinh viên",
+                    EasyPermissions.requestPermissions(ThemVe.this,"Chúng tôi cần quyền Camera để có thể quét được mã sinh viên",
                             123, perms);
                 }
             }
@@ -100,9 +107,17 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter= new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(common,intentFilter);
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         executorService.shutdown();
+        unregisterReceiver(common);
     }
 
     @Override
@@ -134,6 +149,14 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
         if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
             new AppSettingsDialog.Builder(this).build().show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE){
+
         }
     }
 

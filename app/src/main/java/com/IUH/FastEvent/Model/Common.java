@@ -54,8 +54,11 @@ public class Common extends BroadcastReceiver {
                 return false;
             }
             NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
-            return capabilities !=null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET);
+            if (capabilities != null) {
+                return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
+            }else{
+                return false;
+            }
         }else{
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
             return networkInfo != null && networkInfo.isConnected();

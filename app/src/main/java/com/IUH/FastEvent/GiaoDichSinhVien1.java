@@ -1,16 +1,19 @@
 package com.IUH.FastEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.IUH.FastEvent.Model.Common;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
@@ -26,10 +29,12 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
     public CodeScannerView codeScannerView;
     private CodeScanner codeScanner;
+    private Common common;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_giao_dich_sinh_vien1);
+        common = new Common();
         Slidr.attach(this);
         codeScannerView = findViewById(R.id.giaoDichSinhVien1);
         codeScanner = new CodeScanner(this, codeScannerView);
@@ -43,7 +48,6 @@ public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissi
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(GiaoDichSinhVien1.this,"Đang Xử Lý...",Toast.LENGTH_SHORT).show();
                                 Intent intent= new Intent(GiaoDichSinhVien1.this,ThongTinSinhVien1.class);
                                 intent.putExtra("mssvGiaoDich", result.getText());
                                 startActivity(intent);
@@ -62,11 +66,18 @@ public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissi
                 if (EasyPermissions.hasPermissions(GiaoDichSinhVien1.this,perms)){
                     codeScanner.startPreview();
                 }else{
-                    EasyPermissions.requestPermissions(GiaoDichSinhVien1.this,"Chúng tôi cần quền này để có thể quét mã sinh viên",
+                    EasyPermissions.requestPermissions(GiaoDichSinhVien1.this,"Bạn Cần Cấp  này để có thể quét mã sinh viên",
                             123, perms);
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(common,intentFilter);
     }
 
     @AfterPermissionGranted(123)
@@ -77,7 +88,7 @@ public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissi
         if (EasyPermissions.hasPermissions(this,perms)){
             codeScanner.startPreview();
         }else{
-            EasyPermissions.requestPermissions(this,"Chúng tôi cần quền này để có thể quét mã sinh viên",
+            EasyPermissions.requestPermissions(this,"Chúng tôi cần quyền Camera để có thể quét được mã sinh viên",
                     123, perms);
         }
 
@@ -87,6 +98,12 @@ public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissi
     protected void onPause() {
         codeScanner.releaseResources();
         super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(common);
     }
 
     @Override
@@ -104,6 +121,14 @@ public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissi
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
         if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
             new AppSettingsDialog.Builder(this).build().show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE){
+
         }
     }
 }

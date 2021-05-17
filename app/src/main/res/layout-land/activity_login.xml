@@ -40,6 +40,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
                     android:layout_marginEnd="30dp"
+                    android:textColorHint="@color/gray"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="#000000"
                     app:errorEnabled="true"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -52,6 +55,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/username"
+                        android:textColor="@color/black"
                         android:inputType="textEmailAddress"
                         android:textColorHint="@color/gray" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -64,6 +68,9 @@
                     app:passwordToggleEnabled="true"
                     app:errorEnabled="true"
                     android:layout_marginStart="30dp"
+                    android:textColorHint="@color/gray"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="#000000"
                     android:layout_marginTop="20dp"
                     android:layout_marginEnd="30dp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -75,7 +82,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-
+                        android:textColor="@color/black"
                         android:hint="@string/passwordHint"
                         android:importantForAutofill="no"
                         android:inputType="textPassword"
@@ -114,10 +121,24 @@
                     android:textStyle="bold|italic"
                     app:layout_constraintBottom_toTopOf="@+id/username"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.107"
+                    app:layout_constraintHorizontal_bias="0.247"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.081" />
+                    app:layout_constraintVertical_bias="0.114" />
+
+                <TextView
+                    android:id="@+id/xinChaoCongTacVien"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:padding="2dp"
+                    android:text="Các Cộng Tác Viên"
+                    android:textColor="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.259"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
                 <ImageView
                     android:id="@+id/imageView"
                     android:layout_width="85dp"
@@ -131,6 +152,7 @@
                     app:srcCompat="@drawable/logo_dark" />
 
                 <TextView
+                    android:id="@+id/textDangNhap"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"

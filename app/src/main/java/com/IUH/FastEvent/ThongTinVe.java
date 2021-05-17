@@ -1,24 +1,36 @@
 package com.IUH.FastEvent;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
+import com.IUH.FastEvent.Model.Common;
+import com.IUH.FastEvent.Model.LichSuModel;
 import com.IUH.FastEvent.Model.SinhVien;
 import com.IUH.FastEvent.Model.SuKien;
+import com.IUH.FastEvent.Model.Ve;
 import com.IUH.FastEvent.Web3j.Sukien_sol_Sukien;
 import com.IUH.FastEvent.Web3j.ThongTinWeb3;
 import com.google.gson.Gson;
@@ -40,6 +52,7 @@ import org.web3j.tx.gas.DefaultGasProvider;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -57,42 +70,64 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class ThongTinVe extends AppCompatActivity {
-    private String mssv;
+    private String mssv,url;
     private TextView nameSv,txtMssv,txtKhoa,txtLop,txtGioiTinh,txtNgaySinh,
             txtSoHuu,txtNguoiTao,txtTen,txtMaVe,txtNgayLap,txtMaSinhVien,
     txtMaSuKien,txtMaVeGiaoDich,txtMaSinhVienGiaoDich,txtNgayGiaoDich,txtMaSinhVienNhan;
     private ImageView barCode;
+    private Common common;
+    private SinhVien thongTinChiTiet;
+    private Ve thongtinVe;
+    private ExecutorService executorService;
+    private LinearLayout chiTietVe;
+    private ProgressBar progressBar;
+    private CheckTienTrinh checkTienTrinh;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        common= new Common();
         setContentView(R.layout.activity_thong_tin_ve);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
         Slidr.attach(this);
         AnhXa();
+        checkTienTrinh = new CheckTienTrinh();
         Intent intent = getIntent();
         mssv = intent.getStringExtra("mssv");
-        String url = "https://ptta-cnm.herokuapp.com/taikhoan/" + mssv;
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
-        Future<SinhVien> thongTinSinhVien = executorService.submit(new GetUrl(url));
-        Future<Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean>> thongTinBlock = executorService.submit(new LayThongTin());
-        try {
-            SinhVien thongTinChiTiet = thongTinSinhVien.get();
-            showSinhVien(thongTinChiTiet);
-            Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> thongtinVe = thongTinBlock.get();
-            showThongTinVe(thongtinVe);
-            String maVe = thongtinVe.component6();
-            Future<List> thongTinLichSu = executorService.submit(new LichSu(maVe));
-            List idLichSu = thongTinLichSu.get();
-            executorService.execute(new TimLichSu(idLichSu));
-
-        } catch (ExecutionException | InterruptedException | WriterException e) {
-            e.printStackTrace();
-        }
+        url = "https://ptta-cnm.herokuapp.com/taikhoan/" + mssv;
+        chiTietVe.setVisibility(View.GONE);
+        executorService = Executors.newFixedThreadPool(5);
+        executorService.execute(new GetUrl(url));
+        executorService.execute(new LayThongTin());
         executorService.shutdown();
     }
-    static class GetUrl implements Callable<SinhVien>{
+
+    class CheckTienTrinh{
+        private boolean tienTrinh1;
+        private boolean tienTrinh2;
+
+        public void setTienTrinh1(boolean tienTrinh1) {
+            this.tienTrinh1 = tienTrinh1;
+        }
+
+        public void setTienTrinh2(boolean tienTrinh2) {
+            this.tienTrinh2 = tienTrinh2;
+        }
+        public void checkTienTrinh(){
+            if (this.tienTrinh1 && this.tienTrinh2){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        chiTietVe.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }
+    }
+
+
+    class GetUrl implements Runnable{
         private final String url ;
         OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
                                                                 .readTimeout(20,TimeUnit.SECONDS).retryOnConnectionFailure(true).build();
@@ -100,28 +135,61 @@ public class ThongTinVe extends AppCompatActivity {
             this.url = url;
         }
         @Override
-        public SinhVien call() throws Exception {
-            Request.Builder builder = new Request.Builder();
-            builder.url(url);
-            Request request = builder.build();
-            Response response = okHttpClient.newCall(request).execute();
-            String noiDung = Objects.requireNonNull(response.body()).string();
-            Gson gson = new Gson();
-            SinhVien[] sinhVienGet = gson.fromJson(noiDung, SinhVien[].class);
-            return sinhVienGet[0];
-
+        public void run() {
+            try {
+                Request.Builder builder = new Request.Builder();
+                builder.url(url);
+                Request request = builder.build();
+                Response response = okHttpClient.newCall(request).execute();
+                String noiDung = Objects.requireNonNull(response.body()).string();
+                Gson gson = new Gson();
+                SinhVien[] sinhVienGet = gson.fromJson(noiDung, SinhVien[].class);
+                showSinhVien(sinhVienGet[0]);
+                checkTienTrinh.setTienTrinh1(true);
+                checkTienTrinh.checkTienTrinh();
+            } catch (IOException | WriterException e) {
+                e.printStackTrace();
+            }
         }
     }
-    class LayThongTin implements Callable<Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean>> {
+    class LayThongTin implements Runnable {
+        private Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> a;
+        private ArrayList<Integer> listId;
+        private Tuple4<BigInteger, String, BigInteger, BigInteger> lichSu;
         @Override
-        public Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> call() throws Exception {
+        public void run() {
             ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
             Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
             Sukien_sol_Sukien suKien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j, thongTinWeb3.getCredentialsWallet(),new DefaultGasProvider());
             BigInteger mssvInt = new BigInteger(mssv);
-            Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> a = suKien_sol_sukien.searVe(mssvInt,maSuKien()).send();
+            try {
+                a = suKien_sol_sukien.searVe(mssvInt,maSuKien()).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            thongtinVe = new Ve(a);
+            try {
+                listId = (ArrayList<Integer>) suKien_sol_sukien.timLinhSu(thongtinVe.getMave()).send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            ArrayList<LichSuModel> lichSuList = new ArrayList<LichSuModel>();
+            for(Object a: listId){
+                BigInteger id = new BigInteger(a.toString());
+
+                try {
+                    lichSu = suKien_sol_sukien.lichSu(id).send();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                LichSuModel lichSu1 = new LichSuModel(Objects.requireNonNull(lichSu));
+                lichSuList.add(lichSu1);
+            }
             web3j.shutdown();
-            return a;
+            showThongTinVe(thongtinVe);
+            showLichSu(lichSuList);
+            checkTienTrinh.setTienTrinh2(true);
+            checkTienTrinh.checkTienTrinh();
         }
         public String maSuKien() throws IOException {
             String url = "https://ptta-cnm.herokuapp.com/sukien/trangthai";
@@ -130,83 +198,38 @@ public class ThongTinVe extends AppCompatActivity {
             Request.Builder builder = new Request.Builder();
             Request request = builder.url(url).build();
             Response response = okHttpClient.newCall(request).execute();
-            String noidung = response.body().string();
+            String noidung = Objects.requireNonNull(response.body()).string();
             Gson gson = new Gson();
             SuKien[] suKiens = gson.fromJson(noidung,SuKien[].class);
             return suKiens[0].getMasukien();
         }
     }
-    class LichSu implements Callable<List>{
-        private final String maVe;
 
-        public LichSu(String maVe){
-            this.maVe=maVe;
-        }
-        @Override
-        public List call() throws Exception {
-            ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
-            Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
-            Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS
-                                                                            ,web3j
-                                                                            ,thongTinWeb3.getCredentialsWallet()
-                                                                            ,new DefaultGasProvider());
-            List a = sukien_sol_sukien.timLinhSu(maVe).send();
-            web3j.shutdown();
-            return a;
-        }
-    }
-    class TimLichSu implements Runnable{
-        List idLichSu;
-        public TimLichSu(List thongTin){
-            this.idLichSu=thongTin;
-        }
-        @Override
-        public void run() {
-            ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
-            Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
-            Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS
-                    ,web3j
-                    ,thongTinWeb3.getCredentialsWallet()
-                    ,new DefaultGasProvider());
+    public void showLichSu(ArrayList<LichSuModel> lichSuModelArrayList){
+        for (LichSuModel lichSuModel : lichSuModelArrayList) {
             LinearLayout linearLayout = (LinearLayout) findViewById(R.id.giaoDichView);
             LayoutInflater inflater = LayoutInflater.from(ThongTinVe.this);
-
-            for(Object a: idLichSu){
-                BigInteger id = new BigInteger(a.toString());
-                try {
-                    Tuple4<BigInteger, String, BigInteger, BigInteger> lichSu = sukien_sol_sukien.lichSu(id).send();
-                    BigInteger mssvBan = lichSu.component1();
-                    String mssvBanString = mssvBan.toString();
-                    String maVe = lichSu.component2();
-                    BigInteger dateInt = lichSu.component3();
-                    BigInteger mssvNhan = lichSu.component4();
-                    String mssvNhanString =mssvNhan.toString();
-                    long dateLong = dateInt.longValue() *1000;
-                    Date date = new Date(dateLong);
-                    TimeZone timeZoneVN = TimeZone.getTimeZone("Asia/Ho_Chi_Minh") ;
-                    SimpleDateFormat ngayLapFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-                    ngayLapFormat.setTimeZone(timeZoneVN);
-                    String dateTimeGiaoDichString = ngayLapFormat.format(date);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            View view = inflater.inflate(R.layout.giaodich_layout, linearLayout, false);
-                            txtMaVeGiaoDich =(TextView) view.findViewById(R.id.maVeGiaoDich);
-                            txtMaSinhVienGiaoDich = (TextView) view.findViewById(R.id.mssvBanGiaoDich);
-                            txtNgayGiaoDich = (TextView) view.findViewById(R.id.ngayBanGiaoDich);
-                            txtMaSinhVienNhan = (TextView) view.findViewById(R.id.mssvNhanGiaoDich);
-                            txtMaSinhVienGiaoDich.setText(mssvBanString);
-                            txtMaVeGiaoDich.setText(maVe);
-                            txtNgayGiaoDich.setText(dateTimeGiaoDichString);
-                            txtMaSinhVienNhan.setText(mssvNhanString);
-                            linearLayout.addView(view);
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
+            BigInteger mssvBan = lichSuModel.getMssvBan();
+            String mssvBanString = mssvBan.toString();
+            String maVe = lichSuModel.getMaVe();
+            String dateTimeGiaoDichString = lichSuModel.getDateString();
+            BigInteger mssvNhan = lichSuModel.getMssvNhan();
+            String mssvNhanString = mssvNhan.toString();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    View view = inflater.inflate(R.layout.giaodich_layout, linearLayout, false);
+                    txtMaVeGiaoDich = (TextView) view.findViewById(R.id.maVeGiaoDich);
+                    txtMaSinhVienGiaoDich = (TextView) view.findViewById(R.id.mssvBanGiaoDich);
+                    txtNgayGiaoDich = (TextView) view.findViewById(R.id.ngayBanGiaoDich);
+                    txtMaSinhVienNhan = (TextView) view.findViewById(R.id.mssvNhanGiaoDich);
+                    txtMaSinhVienGiaoDich.setText(mssvBanString);
+                    txtMaVeGiaoDich.setText(maVe);
+                    txtNgayGiaoDich.setText(dateTimeGiaoDichString);
+                    txtMaSinhVienNhan.setText(mssvNhanString);
+                    linearLayout.addView(view);
                 }
-            }
-            web3j.shutdown();
+            });
         }
     }
     public void AnhXa(){
@@ -224,6 +247,8 @@ public class ThongTinVe extends AppCompatActivity {
         txtMaSinhVien=(TextView) findViewById(R.id.mssvVe);
         txtMaSuKien=(TextView) findViewById(R.id.maSuKien);
         barCode =(ImageView) findViewById(R.id.code39MaSinhVien);
+        progressBar = findViewById(R.id.progressBar);
+        chiTietVe = findViewById(R.id.noiDungThongTinVe);
     }
     protected void showSinhVien(SinhVien sinhvien) throws WriterException {
         Integer gioiTinh = sinhvien.getGoitinh();
@@ -238,68 +263,94 @@ public class ThongTinVe extends AppCompatActivity {
         BitMatrix bitMatrix = writer.encode(mssvGetSinhVien, BarcodeFormat.CODE_39,600,150);
         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
         Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-        barCode.setImageBitmap(bitmap);
-        if(gioiTinh ==1 ){
-            txtGioiTinh.setText("Nam");
-        }
-        else{
-            txtGioiTinh.setText("Nữ");
-        }
-        nameSv.setText(fullName);
-        txtKhoa.setText(khoa);
-        txtLop.setText(lop);
-        txtMssv.setText(mssvGetSinhVien);
-        txtNgaySinh.setText(ngaysinh);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                barCode.setImageBitmap(bitmap);
+                if(gioiTinh ==1 ){
+                    txtGioiTinh.setText("Nam");
+                }
+                else{
+                    txtGioiTinh.setText("Nữ");
+                }
+                nameSv.setText(fullName);
+                txtKhoa.setText(khoa);
+                txtLop.setText(lop);
+                txtMssv.setText(mssvGetSinhVien);
+                txtNgaySinh.setText(ngaysinh);
+            }
+        });
 
     }
-    protected void showThongTinVe(Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> info){
-        if (!info.component8() && info.component1().compareTo(new BigInteger("0")) == 0 && info.component2().isEmpty() && info.component3().isEmpty()
-                && info.component4().isEmpty() && info.component5().isEmpty() && info.component6().isEmpty()
-                && info.component7().compareTo(new BigInteger("0")) == 0){
-            String thongTinKhongCo = "Không Có Thông Tin Về Vé";
-            txtMaVe.setText(thongTinKhongCo);
-            Typeface typeface = ResourcesCompat.getFont(this, R.font.roboto_thin);
-            txtMaVe.setTypeface(typeface);
-            LinearLayout thongTin1 = findViewById(R.id.chiTietThongTinVe1);
-            LinearLayout thongTin2 = findViewById(R.id.chiTietThongTinVe2);
-            thongTin1.setVisibility(View.GONE);
-            thongTin2.setVisibility(View.GONE);
-        }else{
-            Boolean soHuu = info.component8();
-            BigInteger mssvGetBlockChain = info.component1();
-            String mssvGetBlockChainString = mssvGetBlockChain.toString();
-            String nguoiTao = info.component2();
-            String maSuKien = info.component3();
-            String ho = info.component4();
-            String ten = info.component5();
-            String maVe = info.component6();
-            BigInteger dateTime = info.component7();
-            String fullName = ho+" "+ten;
-            long dateTimeLong = dateTime.longValue() * 1000;
-            String dateTimeString;
-            Date ngayLap = new Date(dateTimeLong);
-            TimeZone timeZoneVN = TimeZone.getTimeZone("Asia/Ho_Chi_Minh") ;
-            @SuppressLint("SimpleDateFormat")
-            SimpleDateFormat ngayLapFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-            ngayLapFormat.setTimeZone(timeZoneVN);
-            dateTimeString = ngayLapFormat.format(ngayLap);
-            if (soHuu){
-                txtSoHuu.setTextColor(Color.GREEN);
-                txtSoHuu.setText("Vé Hợp Lệ");
-            }else{
-                txtSoHuu.setTextColor(Color.RED);
-                txtSoHuu.setText("Không Sở Hữu");
-            }
-            txtNguoiTao.setText(nguoiTao);
-            txtTen.setText(fullName);
-            txtMaVe.setText(maVe);
-            if(dateTime.intValue() == 0){
-                txtNgayLap.setText("");
-            }else{
-                txtNgayLap.setText(dateTimeString);
-            }
-            txtMaSinhVien.setText(mssvGetBlockChainString);
-            txtMaSuKien.setText(maSuKien);
-        }
+    protected void showThongTinVe(Ve info){
+                if (!info.getSohuu() && info.getMssv().compareTo(new BigInteger("0")) == 0 && info.getNguoiTao().isEmpty() && info.getMasukien().isEmpty()
+                        && info.getHo().isEmpty() && info.getTen().isEmpty() && info.getMave().isEmpty()
+                        && info.getDate().compareTo(new BigInteger("0")) == 0){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String thongTinKhongCo = "Không Có Thông Tin Về Vé";
+                            txtMaVe.setText(thongTinKhongCo);
+                            LinearLayout thongTin1 = findViewById(R.id.chiTietThongTinVe1);
+                            LinearLayout thongTin2 = findViewById(R.id.chiTietThongTinVe2);
+                            thongTin1.setVisibility(View.GONE);
+                            thongTin2.setVisibility(View.GONE);
+                        }
+                    });
+                }else{
+                    Boolean soHuu = info.getSohuu();
+                    BigInteger mssvGetBlockChain = info.getMssv();
+                    String mssvGetBlockChainString = mssvGetBlockChain.toString();
+                    String nguoiTao = info.getNguoiTao();
+                    String maSuKien = info.getMasukien();
+                    String ho = info.getHo();
+                    String ten = info.getTen();
+                    String maVe = info.getMave();
+                    BigInteger dateTime = info.getDate();
+                    String fullName = ho+" "+ten;
+                    long dateTimeLong = dateTime.longValue() * 1000;
+                    String dateTimeString;
+                    Date ngayLap = new Date(dateTimeLong);
+                    TimeZone timeZoneVN = TimeZone.getTimeZone("Asia/Ho_Chi_Minh") ;
+                    @SuppressLint("SimpleDateFormat")
+                    SimpleDateFormat ngayLapFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+                    ngayLapFormat.setTimeZone(timeZoneVN);
+                    dateTimeString = ngayLapFormat.format(ngayLap);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (soHuu){
+                                txtSoHuu.setTextColor(Color.GREEN);
+                                txtSoHuu.setText("Vé Hợp Lệ");
+                            }else{
+                                txtSoHuu.setTextColor(Color.RED);
+                                txtSoHuu.setText("Không Sở Hữu");
+                            }
+                            txtNguoiTao.setText(nguoiTao);
+                            txtTen.setText(fullName);
+                            txtMaVe.setText(maVe);
+                            if(dateTime.intValue() == 0){
+                                txtNgayLap.setText("");
+                            }else{
+                                txtNgayLap.setText(dateTimeString);
+                            }
+                            txtMaSinhVien.setText(mssvGetBlockChainString);
+                            txtMaSuKien.setText(maSuKien);
+                        }
+                    });
+                }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter= new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(common,intentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(common);
     }
 }

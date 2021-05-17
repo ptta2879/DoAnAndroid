@@ -111,6 +111,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
+                android:backgroundTint="@color/white"
                 android:text="Hủy" />
 
             <Button

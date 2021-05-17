@@ -42,14 +42,19 @@
                     android:layout_marginTop="320dp"
                     android:layout_marginEnd="30dp"
                     android:layout_marginBottom="20dp"
+                    android:textColorHint="@color/gray"
+                    app:boxBackgroundMode="outline"
+                    app:boxStrokeColor="#000000"
                     app:endIconMode="clear_text"
                     app:errorEnabled="true"
                     app:layout_constraintBottom_toTopOf="@+id/password"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:passwordToggleTint="#FFFFFF">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:textColor="@color/black"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/username"
@@ -63,8 +68,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="30dp"
                     android:layout_marginEnd="30dp"
-                    app:errorEnabled="true"
+                    android:textColorHint="@color/gray"
 
+                    app:boxStrokeColor="#000000"
+                    app:errorEnabled="true"
                     app:layout_constraintBottom_toTopOf="@+id/dangnhap"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -75,7 +82,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-
+                        android:textColor="@color/black"
                         android:hint="@string/passwordHint"
                         android:importantForAutofill="no"
                         android:inputType="textPassword"

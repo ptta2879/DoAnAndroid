@@ -48,14 +48,6 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        if (ActivityCompat.checkSelfPermission(Login.this,
-                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-        || ActivityCompat.checkSelfPermission(Login.this,Manifest.permission.INTERNET)!= PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(Login.this,
-                    new String[] { Manifest.permission.CAMERA, Manifest.permission.INTERNET }, REQUEST_CAMERA);
-            return;
-        }
         common = new Common();
         AnhXa();
 
@@ -109,6 +101,7 @@ public class Login extends AppCompatActivity {
                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                             if (task.isSuccessful()) {
                                                 // Sign in success, update UI with the signed-in user's information
+                                                Toast.makeText(Login.this, "Đang Xử Lý..." ,Toast.LENGTH_SHORT).show();
                                                 Intent ax = new Intent(Login.this, MenuChucNang.class);
                                                 startActivity(ax);
                                                 finish();

@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.IUH.FastEvent.Model.Common;
 import com.IUH.FastEvent.Model.CongTacVien;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -43,13 +46,14 @@ public class MenuChucNang extends AppCompatActivity {
     private CardView chuNang1,chuNang2,chuNang3,chuNang4;
     private Integer phanQuyen = 0;
     BlurView blurView;
+    private Common common;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_chuc_nang);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        common= new Common();
         AnhXa();
         logo.setScaleX(0f);
         logo.setScaleY(0f);
@@ -158,7 +162,8 @@ public class MenuChucNang extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         AnhXa();
-
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(common,intentFilter);
     }
 
     @Override
@@ -166,6 +171,7 @@ public class MenuChucNang extends AppCompatActivity {
         AnhXa();
 
         super.onStop();
+        unregisterReceiver(common);
     }
     public void setBlurView(){
         View decorView = getWindow().getDecorView();
