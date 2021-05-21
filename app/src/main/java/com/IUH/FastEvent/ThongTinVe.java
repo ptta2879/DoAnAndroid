@@ -40,12 +40,14 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.r0adkll.slidr.Slidr;
+import com.tapadoo.alerter.Alerter;
 
 
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tuples.generated.Tuple4;
 import org.web3j.tuples.generated.Tuple8;
+import org.web3j.tuples.generated.Tuple9;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 
@@ -73,7 +75,7 @@ public class ThongTinVe extends AppCompatActivity {
     private String mssv,url;
     private TextView nameSv,txtMssv,txtKhoa,txtLop,txtGioiTinh,txtNgaySinh,
             txtSoHuu,txtNguoiTao,txtTen,txtMaVe,txtNgayLap,txtMaSinhVien,
-    txtMaSuKien,txtMaVeGiaoDich,txtMaSinhVienGiaoDich,txtNgayGiaoDich,txtMaSinhVienNhan;
+    txtMaSuKien,txtMaVeGiaoDich,txtMaSinhVienGiaoDich,txtNgayGiaoDich,txtMaSinhVienNhan,txtViTri,txtViTriTieuDe;
     private ImageView barCode;
     private Common common;
     private SinhVien thongTinChiTiet;
@@ -144,16 +146,31 @@ public class ThongTinVe extends AppCompatActivity {
                 String noiDung = Objects.requireNonNull(response.body()).string();
                 Gson gson = new Gson();
                 SinhVien[] sinhVienGet = gson.fromJson(noiDung, SinhVien[].class);
-                showSinhVien(sinhVienGet[0]);
-                checkTienTrinh.setTienTrinh1(true);
-                checkTienTrinh.checkTienTrinh();
+                if (sinhVienGet.length ==0){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Alerter.create(ThongTinVe.this)
+                                    .setTitle("Thông Báo").setText("Không có thông tin vé của sinh viên trong hệ thống")
+                                    .setBackgroundColorRes(R.color.red)
+                                    .setIcon(R.drawable.ic_baseline_close_24)
+                                    .enableSwipeToDismiss().setDuration(4000).show();
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+
+                }else{
+                    showSinhVien(sinhVienGet[0]);
+                    checkTienTrinh.setTienTrinh1(true);
+                    checkTienTrinh.checkTienTrinh();
+                }
             } catch (IOException | WriterException e) {
                 e.printStackTrace();
             }
         }
     }
     class LayThongTin implements Runnable {
-        private Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> a;
+        private Tuple9<BigInteger, String, String, String, String, String, String, BigInteger, Boolean> a;
         private ArrayList<Integer> listId;
         private Tuple4<BigInteger, String, BigInteger, BigInteger> lichSu;
         @Override
@@ -249,6 +266,8 @@ public class ThongTinVe extends AppCompatActivity {
         barCode =(ImageView) findViewById(R.id.code39MaSinhVien);
         progressBar = findViewById(R.id.progressBar);
         chiTietVe = findViewById(R.id.noiDungThongTinVe);
+        txtViTri = (TextView)findViewById(R.id.viTri);
+        txtViTriTieuDe =(TextView) findViewById(R.id.viTriTieuDe);
     }
     protected void showSinhVien(SinhVien sinhvien) throws WriterException {
         Integer gioiTinh = sinhvien.getGoitinh();
@@ -295,6 +314,7 @@ public class ThongTinVe extends AppCompatActivity {
                             LinearLayout thongTin2 = findViewById(R.id.chiTietThongTinVe2);
                             thongTin1.setVisibility(View.GONE);
                             thongTin2.setVisibility(View.GONE);
+                            txtViTriTieuDe.setVisibility(View.GONE);
                         }
                     });
                 }else{
@@ -328,6 +348,7 @@ public class ThongTinVe extends AppCompatActivity {
                             }
                             txtNguoiTao.setText(nguoiTao);
                             txtTen.setText(fullName);
+                            txtViTri.setText(info.getVitri());
                             txtMaVe.setText(maVe);
                             if(dateTime.intValue() == 0){
                                 txtNgayLap.setText("");

@@ -54,10 +54,7 @@
             android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.QuetMa.Slidr" />
-        <activity
-            android:name=".GiaoDichSinhVien2"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.QuetMa.Slidr" />
+
 
         <meta-data
             android:name="preloaded_fonts"

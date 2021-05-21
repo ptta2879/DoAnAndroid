@@ -1,10 +1,8 @@
 package com.IUH.FastEvent.Model;
 
 import android.annotation.SuppressLint;
-import android.os.Parcel;
-import android.os.Parcelable;
 
-import org.web3j.tuples.generated.Tuple8;
+import org.web3j.tuples.generated.Tuple9;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -19,42 +17,44 @@ public class Ve implements Serializable{
     private String ho;
     private String ten;
     private String mave;
+    private String vitri;
     private BigInteger date;
     private Boolean sohuu;
 
-    public Ve(BigInteger mssv, String nguoiTao, String masukien, String ho, String ten, String mave, BigInteger date, Boolean sohuu) {
+    public String getVitri() {
+        return vitri;
+    }
+
+    public void setVitri(String vitri) {
+        this.vitri = vitri;
+    }
+
+    public Ve(BigInteger mssv, String nguoiTao, String masukien, String ho, String ten, String mave, String vitri, BigInteger date, Boolean sohuu) {
         this.mssv = mssv;
         this.nguoiTao = nguoiTao;
         this.masukien = masukien;
         this.ho = ho;
         this.ten = ten;
         this.mave = mave;
+        this.vitri = vitri;
         this.date = date;
         this.sohuu = sohuu;
     }
     public Ve(){
 
     }
-    public Ve(Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> ve){
+    public Ve(Tuple9<BigInteger, String, String, String, String, String,String, BigInteger, Boolean> ve){
         this.mssv=ve.component1();
         this.nguoiTao=ve.component2();
         this.masukien=ve.component3();
         this.ho=ve.component4();
         this.ten=ve.component5();
         this.mave=ve.component6();
-        this.date=ve.component7();
-        this.sohuu=ve.component8();
+        this.vitri= ve.component7();
+        this.date=ve.component8();
+        this.sohuu=ve.component9();
     }
 
-    protected Ve(Parcel in) {
-        nguoiTao = in.readString();
-        masukien = in.readString();
-        ho = in.readString();
-        ten = in.readString();
-        mave = in.readString();
-        byte tmpSohuu = in.readByte();
-        sohuu = tmpSohuu == 0 ? null : tmpSohuu == 1;
-    }
 
     public void setMssv(BigInteger mssv) {
         this.mssv = mssv;

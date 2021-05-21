@@ -40,6 +40,7 @@ import com.tapadoo.alerter.Alerter;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tuples.generated.Tuple8;
+import org.web3j.tuples.generated.Tuple9;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.io.IOException;
@@ -70,7 +71,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
             ngaySinhSinhVien1,soHuuSinhVien1,maVeSinhVien1,nguoiTaoVeSinhVien1,maSuKienSinhVien1,ngayLapVeSinhVien1;
     private String mssv;
     private SinhVien thongTinSinhVien;
-    private Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> thongtinVe;
+    private Tuple9<BigInteger, String, String, String, String, String,String, BigInteger, Boolean> thongtinVe;
     private Common common;
     private LinearLayout linearLayout;
     private ProgressBar progressBar;
@@ -97,10 +98,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Ve ve = new Ve(thongtinVe);
-                Intent intentSinhVien2 = new Intent(ThongTinSinhVien1.this, GiaoDichSinhVien2.class);
-                intentSinhVien2.putExtra(GiaoDichSinhVien2.THONG_TIN_SINH_VIEN,thongTinSinhVien);
-                intentSinhVien2.putExtra(GiaoDichSinhVien2.THONG_TIN_VE_SINH_VIEN1, ve);
-                startActivity(intentSinhVien2);
+
                 executorService.shutdown();
             }
         });
@@ -128,11 +126,11 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
             }
         }
     }
-    private void showVe(Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> ve){
+    private void showVe(Tuple9<BigInteger, String, String, String, String, String,String, BigInteger, Boolean> ve){
         String nguoiTao = ve.component2();
         String maSuKien = ve.component3();
         String maVe = ve.component6();
-        BigInteger dateTime = ve.component7();
+        BigInteger dateTime = ve.component8();
         long dateTimeLong = dateTime.longValue() * 1000;
         String dateTimeString;
         Date ngayLap = new Date(dateTimeLong);
@@ -141,9 +139,9 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
         SimpleDateFormat ngayLapFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
         ngayLapFormat.setTimeZone(timeZoneVN);
         dateTimeString = ngayLapFormat.format(ngayLap);
-        if (!ve.component8() && ve.component1().compareTo(new BigInteger("0")) == 0 && ve.component2().isEmpty() && ve.component3().isEmpty()
+        if (!ve.component9() && ve.component1().compareTo(new BigInteger("0")) == 0 && ve.component2().isEmpty() && ve.component3().isEmpty()
                 && ve.component4().isEmpty() && ve.component5().isEmpty() && ve.component6().isEmpty()
-                && ve.component7().compareTo(new BigInteger("0")) == 0){
+                && ve.component8().compareTo(new BigInteger("0")) == 0){
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -159,7 +157,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (ve.component8()){
+                    if (ve.component9()){
                         soHuuSinhVien1.setTextColor(Color.GREEN);
                         soHuuSinhVien1.setText("Vé Hợp Lệ");
                     }else{
@@ -276,7 +274,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity {
                     new DefaultGasProvider());
             BigInteger mssvBigInteger = new BigInteger(mssv);
             try {
-                Tuple8<BigInteger, String, String, String, String, String, BigInteger, Boolean> duLieu
+                Tuple9<BigInteger, String, String, String, String, String,String, BigInteger, Boolean> duLieu
                         = sukien_sol_sukien.searVe(mssvBigInteger,getSuKien()).send();
                 thongtinVe = duLieu;
                 showVe(duLieu);

@@ -3,74 +3,81 @@ package com.IUH.FastEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.IUH.FastEvent.Model.Common;
+import com.IUH.FastEvent.Model.YeuCau;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.Result;
 import com.r0adkll.slidr.Slidr;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
-    public CodeScannerView codeScannerView;
-    private CodeScanner codeScanner;
+public class GiaoDichSinhVien1 extends AppCompatActivity {
+    private RecyclerView recyclerView;
     private Common common;
+    private YeuCauAdapter yeuCauAdapter;
+    private YeuCauViewModel yeuCauViewModel;
+    private YeuCauAdapter.OnClickYeuCau listener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_giao_dich_sinh_vien1);
+
+        setContentView(R.layout.activity_giao_dich_moi);
         common = new Common();
         Slidr.attach(this);
-        codeScannerView = findViewById(R.id.giaoDichSinhVien1);
-        codeScanner = new CodeScanner(this, codeScannerView);
+        recyclerView = findViewById(R.id.rcvYeuCau);
+        yeuCauAdapter = new YeuCauAdapter();
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
-        codeScanner.setDecodeCallback(new DecodeCallback() {
+        yeuCauViewModel = new ViewModelProvider(this).get(YeuCauViewModel.class);
+        yeuCauViewModel.getMutableLiveData().observe(this, new Observer<ArrayList<YeuCau>>() {
             @Override
-            public void onDecoded(@NonNull Result result) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent intent= new Intent(GiaoDichSinhVien1.this,ThongTinSinhVien1.class);
-                                intent.putExtra("mssvGiaoDich", result.getText());
-                                startActivity(intent);
-                            }
-                        });
-
-                    }
-                });
+            public void onChanged(ArrayList<YeuCau> yeuCaus) {
+                setOnClickListner(yeuCaus);
+                yeuCauAdapter.setYeuCauArrayList(yeuCaus,listener);
+                recyclerView.setAdapter(yeuCauAdapter);
             }
         });
-        codeScannerView.setOnClickListener(new View.OnClickListener() {
-            @AfterPermissionGranted(123)
+    }
+
+    private void setOnClickListner(ArrayList<YeuCau> yeuCaus) {
+        listener = new YeuCauAdapter.OnClickYeuCau() {
             @Override
-            public void onClick(View v) {
-                String[] perms = {Manifest.permission.CAMERA};
-                if (EasyPermissions.hasPermissions(GiaoDichSinhVien1.this,perms)){
-                    codeScanner.startPreview();
-                }else{
-                    EasyPermissions.requestPermissions(GiaoDichSinhVien1.this,"Bạn Cần Cấp  này để có thể quét mã sinh viên",
-                            123, perms);
-                }
+            public void onItemClick(View view, int position) {
+                Toast.makeText(getApplicationContext(),yeuCaus.get(position).getMssvnhan().toString(),Toast.LENGTH_LONG).show();
             }
-        });
+        };
     }
 
     @Override
@@ -78,25 +85,16 @@ public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissi
         super.onStart();
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(common,intentFilter);
+
     }
 
-    @AfterPermissionGranted(123)
     @Override
     protected void onResume() {
         super.onResume();
-        String[] perms = {Manifest.permission.CAMERA};
-        if (EasyPermissions.hasPermissions(this,perms)){
-            codeScanner.startPreview();
-        }else{
-            EasyPermissions.requestPermissions(this,"Chúng tôi cần quyền Camera để có thể quét được mã sinh viên",
-                    123, perms);
-        }
-
     }
 
     @Override
     protected void onPause() {
-        codeScanner.releaseResources();
         super.onPause();
     }
 
@@ -104,31 +102,8 @@ public class GiaoDichSinhVien1 extends AppCompatActivity implements EasyPermissi
     protected void onStop() {
         super.onStop();
         unregisterReceiver(common);
+        yeuCauViewModel.stopListenYeuCau();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults, this);
-    }
 
-    @Override
-    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
-
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
-            new AppSettingsDialog.Builder(this).build().show();
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE){
-
-        }
-    }
 }

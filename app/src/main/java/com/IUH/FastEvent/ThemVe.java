@@ -15,6 +15,7 @@ import android.view.View;
 import com.IUH.FastEvent.Model.Common;
 import com.IUH.FastEvent.Model.SinhVien;
 import com.IUH.FastEvent.Model.SuKien;
+import com.IUH.FastEvent.Model.VeAo;
 import com.IUH.FastEvent.Web3j.Sukien_sol_Sukien;
 import com.IUH.FastEvent.Web3j.ThongTinWeb3;
 import com.budiyev.android.codescanner.CodeScanner;
@@ -27,10 +28,12 @@ import com.r0adkll.slidr.Slidr;
 import com.tapadoo.alerter.Alerter;
 
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.StaticGasProvider;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -66,7 +69,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
         setContentView(R.layout.activity_them_ve);
         common= new Common();
         Slidr.attach(this);
-        executorService = Executors.newFixedThreadPool(1);
+        executorService = Executors.newCachedThreadPool();
         CodeScannerView codeScannerView = findViewById(R.id.scannerThemVe);
         mCodeScanner = new CodeScanner(this, codeScannerView);
         mCodeScanner.setDecodeCallback(new DecodeCallback() {
@@ -159,12 +162,25 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
 
         }
     }
+    class ThongBao{
+        public Boolean getSuccess() {
+            return success;
+        }
+
+        public void setSuccess(Boolean success) {
+            this.success = success;
+        }
+
+        private Boolean success;
+
+    }
 
     class TaoVe implements Runnable{
         private final String maSinhVien;
         private Boolean checkHoatDongTrueFalse;
         private SuKien thongTinSuKien;
         private SinhVien thongTinSinhVien;
+        private VeAo thongTinVeAo;
         private final StringBuilder url = new StringBuilder("https://ptta-cnm.herokuapp.com/taikhoan/");
         OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(20,TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true).build();
@@ -174,9 +190,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
         @Override
         public void run() {
             try {
-                if(checkHoatDong() != null){
-                    checkHoatDongTrueFalse = checkHoatDong();
-                }
+                checkHoatDongTrueFalse = checkHoatDong();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -206,6 +220,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
             try {
                 thongTinSinhVien = thongTin.getThongTin(maSinhVien);
                 thongTinSuKien = getSuKien.getSuKien();
+                thongTinVeAo = getVe();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -218,9 +233,8 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                             thongTinWeb3.getCredentialsWallet(), new StaticGasProvider(ThongTinWeb3.GAS_PRICE,ThongTinWeb3.GAS_LIMIT));
 
                     BigInteger mssvInter = new BigInteger(maSinhVien);
-                    if(thongTinSinhVien.getHovaten() != null && thongTinSinhVien.getTen() != null
-                            && thongTinSinhVien.getMave() != null
-                            && thongTinSuKien.getMasukien() != null && thongTinSuKien.getChongoi() != null){
+                    if(thongTinSinhVien.getHovaten() != null || thongTinSinhVien.getTen() != null
+                            || thongTinSuKien.getMasukien() != null || thongTinSuKien.getChongoi() != null){
                         try {
                             BigInteger ve = sukien_sol_sukien.veMapping(thongTinSuKien.getMasukien()).send();
                             BigInteger choGoi = BigInteger.valueOf(thongTinSuKien.getChongoi().longValue());
@@ -233,14 +247,36 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                         .enableSwipeToDismiss().setDuration(4000).show();
                                 web3j.shutdown();
                             }else{
-                                sukien_sol_sukien.createVe(mssvInter,nguoiTao,thongTinSinhVien.getHovaten(),thongTinSinhVien.getTen(),thongTinSuKien.getMasukien(),thongTinSinhVien.getMave()).send();
-                                pDialog.cancel();
-                                Alerter.create(ThemVe.this)
-                                        .setTitle("Thông Báo").setText("Xác nhận vé thành công")
-                                        .setBackgroundColorRes(R.color.success)
-                                        .setIcon(R.drawable.ic_baseline_check)
-                                        .enableSwipeToDismiss().setDuration(4000).show();
-                                web3j.shutdown();
+                                if (setMssvVeAo(thongTinVeAo.getMave(),mssvInter.toString())){
+                                    TransactionReceipt themVeBlock = sukien_sol_sukien.createVe(mssvInter,nguoiTao,thongTinSinhVien.getHovaten(),thongTinSinhVien.getTen(),thongTinSuKien.getMasukien(),thongTinVeAo.getMave()
+                                            ,thongTinVeAo.getVitri()).send();
+                                    if (themVeBlock.isStatusOK()){
+                                        pDialog.cancel();
+                                        Alerter.create(ThemVe.this)
+                                                .setTitle("Thông Báo").setText("Cấp phát vé thành công")
+                                                .setBackgroundColorRes(R.color.success)
+                                                .setIcon(R.drawable.ic_baseline_check)
+                                                .enableSwipeToDismiss().setDuration(4000).show();
+                                    }else {
+                                        pDialog.cancel();
+                                        Alerter.create(ThemVe.this)
+                                                .setTitle("Thông Báo").setText("Cấp phát vé không thành công"+
+                                                "Kết nối với ETH gặp sự cố")
+                                                .setBackgroundColorRes(R.color.red)
+                                                .setIcon(R.drawable.ic_baseline_close_24)
+                                                .enableSwipeToDismiss().setDuration(4000).show();
+                                        web3j.shutdown();
+                                    }
+                                }else{
+                                    pDialog.cancel();
+                                    Alerter.create(ThemVe.this)
+                                            .setTitle("Thông Báo").setText("Cấp phát vé không thành công"+
+                                            "Cloud gặp sự cố")
+                                            .setBackgroundColorRes(R.color.red)
+                                            .setIcon(R.drawable.ic_baseline_close_24)
+                                            .enableSwipeToDismiss().setDuration(4000).show();
+                                    web3j.shutdown();
+                                }
                             }
 
                         } catch (Exception e) {
@@ -288,6 +324,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        pDialog.cancel();
                         Alerter.create(ThemVe.this)
                                 .setTitle("Thông Báo").setText("Không có thông tin")
                                 .setBackgroundColorRes(R.color.red)
@@ -319,6 +356,26 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
             }else{
                 return false;
             }
+        }
+        public VeAo getVe() throws IOException {
+            String urlVeAo = "https://ptta-cnm.herokuapp.com/ve";
+            Request.Builder builder = new Request.Builder();
+            builder.url(urlVeAo);
+            Request request = builder.build();
+            Response response = okHttpClient.newCall(request).execute();
+            String noiDung = Objects.requireNonNull(response.body()).string();
+            Gson gson = new Gson();
+            VeAo[] veAos = gson.fromJson(noiDung, VeAo[].class);
+            return veAos[0];
+        }
+        protected Boolean setMssvVeAo(String maVe, String mssv) throws IOException {
+            String urlSetMssvVeAo = "https://ptta-cnm.herokuapp.com/ve/"+maVe+"/"+mssv;
+            Request request = new Request.Builder().url(urlSetMssvVeAo).build();
+            Response response = okHttpClient.newCall(request).execute();
+            String noiDung = Objects.requireNonNull(response.body()).string();
+            Gson gson = new Gson();
+            ThongBao thongBao = gson.fromJson(noiDung,ThongBao.class);
+            return thongBao.getSuccess();
         }
     }
 
