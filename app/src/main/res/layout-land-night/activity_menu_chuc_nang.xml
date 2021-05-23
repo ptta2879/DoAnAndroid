@@ -208,7 +208,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="12dp"
                                 android:textStyle="bold"
-                                android:text="Giao dịch vé"
+                                android:text="Chuyển vé"
                                 android:textColor="#6f6f6f"
                                 android:textSize="18sp" />
                         </LinearLayout>

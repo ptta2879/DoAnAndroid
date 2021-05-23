@@ -48,8 +48,6 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
         super.onCreate(savedInstanceState);
         common = new Common();
         setContentView(R.layout.activity_xac_nhan_hoat_dong);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         Slidr.attach(this);
         CodeScannerView codeScannerView = findViewById(R.id.xacNhanHoatDong);
         executorService = Executors.newFixedThreadPool(1);

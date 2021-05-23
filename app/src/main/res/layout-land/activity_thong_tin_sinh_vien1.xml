@@ -4,9 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:background="@drawable/gradient_bg_thongtin2"
     android:id="@+id/layoutThongTinSinhVien"
     tools:context=".ThongTinSinhVien1">
+
 
     <ProgressBar
         android:id="@+id/progressBar2"
@@ -17,7 +20,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <ScrollView
+        android:id="@+id/scrollView3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -26,314 +31,911 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/noiDungVe"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical">
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_margin="20dp"
-                android:layout_width="400dp"
-                android:layout_height="550dp">
-                <com.vipulasri.ticketview.TicketView
-                    android:id="@+id/ticketView"
+            <com.ramotion.foldingcell.FoldingCell
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:id="@+id/folding_cell"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <FrameLayout
+                    android:id="@+id/cell_content_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:ticketBorderColor="@color/black"
-                    app:ticketBorderWidth="1dp"
-                    app:ticketCornerType="rounded"
-                    app:ticketDividerPadding="0dp"
-                    app:ticketDividerType="dash"
-                    app:ticketElevation="10dp"
-                    app:ticketOrientation="horizontal"
-                    app:ticketScallopPositionPercent="40"
-                    app:ticketScallopRadius="10dp"
-                    app:ticketShowBorder="false"
-                    app:ticketShowDivider="true" />
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guideline2"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintGuide_percent="0.4"/>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:gravity="center"
-                    app:layout_constraintBottom_toTopOf="@+id/guideline2"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:orientation="vertical"
-                    app:layout_constraintTop_toTopOf="@+id/ticketView">
-
-                    <ImageView
-                        android:id="@+id/imageSinhVien1"
+                    android:visibility="gone">
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:scaleType="fitCenter"
-                        android:adjustViewBounds="true"
-                        android:paddingLeft="30dp"
-                        android:paddingTop="30dp"
-                        android:paddingRight="30dp"
-                        android:paddingBottom="10dp"
-                        />
-                    <TextView
-                        android:id="@+id/mssvSinhVien1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/black"
-                        android:fontFamily="@font/roboto_thin"
-                        />
-                </LinearLayout>
+                        android:layout_height="350dp">
+                        <com.vipulasri.ticketview.TicketView
+                            android:id="@+id/ticketViewSinhVien1"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:ticketBorderColor="@color/black"
+                            app:ticketBorderWidth="1dp"
+                            app:ticketCornerType="rounded"
+                            app:ticketDividerPadding="5dp"
+                            app:ticketDividerType="dash"
+                            app:ticketElevation="10dp"
+                            app:ticketOrientation="horizontal"
+                            app:ticketScallopPositionPercent="50"
+                            app:ticketScallopRadius="10dp"
+                            app:ticketShowBorder="false"
+                            app:ticketShowDivider="true" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:padding="18dp"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="@+id/ticketView"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/guideline2">
-
-                    <TextView
-                        android:id="@+id/thongTinTenSinhVien1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto"
-                        android:layout_marginTop="10dp"
-                        android:textColor="@color/black"
-                        android:textSize="25sp"
-                        />
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <TextView
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/guideline3"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/roboto_thin"
-                            android:textColor="@color/black"
-                            android:text="Giới Tính:"/>
-                        <TextView
-                            android:id="@+id/thongTinGioiTinhSinhVien1"
+                            android:orientation="horizontal"
+                            app:layout_constraintGuide_percent="0.5" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="18dp"
+                            app:layout_constraintBottom_toTopOf="@+id/guideline3"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/ticketViewSinhVien1">
+                            <TextView
+                                android:id="@+id/thongTinTenSinhVien1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:fontFamily="@font/roboto"
+                                android:textColor="@color/black"
+                                android:textSize="25sp" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/roboto_thin"
+                                    android:text="Giới Tính:"
+                                    android:textColor="@color/black" />
+                                <TextView
+                                    android:id="@+id/thongTinGioiTinhSinhVien1"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="5dp"
+                                    android:fontFamily="@font/roboto"
+                                    android:textColor="@color/black" />
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Khoa:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinKhoaSinhVien1"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="5dp"
+                                    android:layout_marginRight="5dp"
+                                    android:background="@color/material_grey_300" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Lớp:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinLopSinhVien1"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="5dp"
+                                    android:layout_marginRight="5dp"
+                                    android:background="@color/material_grey_300" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Ngày Sinh:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinNgaySinhSinhVien1"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                        </LinearLayout>
+                        <androidx.core.widget.NestedScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                        </androidx.core.widget.NestedScrollView>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:orientation="vertical"
+                            android:padding="18dp"
+                            app:layout_constraintBottom_toBottomOf="@+id/ticketViewSinhVien1"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/guideline3">
+
+                            <TextView
+                                android:id="@+id/thongTinSoHuuSinhVien1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:fontFamily="@font/roboto"
+                                android:textSize="20sp" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    android:id="@+id/thongTinMaVeSinhVien1"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:fontFamily="@font/roboto"
+                                    android:textColor="@color/black" />
+                                <TextView
+                                    android:id="@+id/viTriTieuDe1"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/roboto_thin"
+                                    android:textColor="@color/black"
+                                    android:layout_marginStart="20dp"
+                                    android:text="Vị Trí:"/>
+                                <TextView
+                                    android:id="@+id/thongTinViTriSinhVien1"
+                                    android:layout_marginStart="5dp"
+                                    android:fontFamily="@font/roboto"
+                                    android:textColor="@color/black"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                            </LinearLayout>
+
+
+                            <androidx.core.widget.NestedScrollView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent">
+                                <LinearLayout
+                                    android:id="@+id/chiTietThongTinVeSinhVien1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="20dp"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:fontFamily="@font/roboto_thin"
+                                            android:text="Người Tạo:"
+                                            android:textColor="@color/black" />
+
+                                        <TextView
+                                            android:id="@+id/thongTinNguoiTaoVeSinhVien1"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginStart="5dp"
+                                            android:fontFamily="@font/roboto"
+                                            android:textAlignment="center"
+                                            android:textColor="@color/black" />
+                                    </LinearLayout>
+
+                                    <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_marginLeft="5dp"
+                                        android:layout_marginRight="5dp"
+                                        android:background="@color/material_grey_300" />
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:fontFamily="@font/roboto_thin"
+                                            android:text="Mã Sự Kiện:"
+                                            android:textColor="@color/black" />
+
+                                        <TextView
+                                            android:id="@+id/thongTinMaSuKienSinhVien1"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginStart="5dp"
+                                            android:fontFamily="@font/roboto"
+                                            android:textAlignment="center"
+                                            android:textColor="@color/black" />
+                                    </LinearLayout>
+
+                                    <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_marginLeft="5dp"
+                                        android:layout_marginRight="5dp"
+                                        android:background="@color/material_grey_300" />
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:fontFamily="@font/roboto_thin"
+                                            android:text="Ngày lập:"
+                                            android:textColor="@color/black" />
+
+                                        <TextView
+                                            android:id="@+id/thongTinNgayLapSinhVien1"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginStart="5dp"
+                                            android:fontFamily="@font/roboto"
+                                            android:textAlignment="center"
+                                            android:textColor="@color/black" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </androidx.core.widget.NestedScrollView>
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/cell_title_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                   >
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp">
+
+                        <com.vipulasri.ticketview.TicketView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:ticketBorderColor="@color/black"
+                            app:ticketBorderWidth="1dp"
+                            app:ticketCornerType="rounded"
+                            app:ticketDividerPadding="0dp"
+                            app:ticketDividerType="dash"
+                            app:ticketElevation="0dp"
+                            app:ticketOrientation="vertical"
+                            app:ticketScallopPositionPercent="30"
+                            app:ticketScallopRadius="10dp"
+                            app:ticketShowBorder="false"
+                            app:ticketShowDivider="true" />
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/guideline4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/roboto"
-                            android:layout_marginStart="5dp"
-                            android:textColor="@color/black" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_marginTop="20dp"
-                        android:orientation="horizontal"
-                        android:layout_height="wrap_content">
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:orientation="vertical"
-                            android:gravity="center">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto_thin"
-                                android:textColor="@color/black"
-                                android:text="Khoa:"/>
-                            <TextView
-                                android:id="@+id/thongTinKhoaSinhVien1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto"
-                                android:layout_marginStart="5dp"
-                                android:textColor="@color/black"
-                                />
-                        </LinearLayout>
-                        <View
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginRight="5dp"
-                            android:background="@color/material_grey_300" />
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto_thin"
-                                android:textColor="@color/black"
-                                android:text="Lớp:"/>
-                            <TextView
-                                android:id="@+id/thongTinLopSinhVien1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto"
-                                android:layout_marginStart="5dp"
-                                android:textColor="@color/black"
-                                />
-                        </LinearLayout>
-                        <View
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginRight="5dp"
-                            android:background="@color/material_grey_300" />
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto_thin"
-                                android:textColor="@color/black"
-                                android:text="Ngày Sinh:"/>
-                            <TextView
-                                android:id="@+id/thongTinNgaySinhSinhVien1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto"
-                                android:layout_marginStart="5dp"
-                                android:textColor="@color/black"
-                                />
-                        </LinearLayout>
-                    </LinearLayout>
-                    <TextView
-                        android:id="@+id/thongTinSoHuuSinhVien1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:fontFamily="@font/roboto"
-                        android:textSize="20sp" />
-                    <TextView
-                        android:id="@+id/thongTinMaVeSinhVien1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto"
-                        android:layout_marginStart="40dp"
-                        android:textColor="@color/black"
-                        />
-                    <LinearLayout
-                        android:id="@+id/chiTietThongTinVeSinhVien1"
-                        android:layout_width="match_parent"
-                        android:layout_marginTop="20dp"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:layout_height="wrap_content">
+                            app:layout_constraintGuide_percent="0.3" />
 
                         <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_height="0dp"
+                            android:gravity="center"
                             android:orientation="vertical"
-                            android:gravity="center">
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/guideline4"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto_thin"
-                                android:textColor="@color/black"
-                                android:text="Người Tạo:"/>
+                                android:layout_marginBottom="10dp"
+                                android:fontFamily="@font/allerta_stencil"
+                                android:text="Fast Event"
+                                android:textSize="15sp"
+                                android:textColor="#ff7378"
+                                 />
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginEnd="10dp"
+                                android:background="@color/material_grey_300" />
+
                             <TextView
-                                android:textAlignment="center"
-                                android:id="@+id/thongTinNguoiTaoVeSinhVien1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:gravity="center"
                                 android:fontFamily="@font/roboto"
-                                android:layout_marginStart="5dp"
-                                android:textColor="@color/black"
-                                />
+                                android:text="Thông Tin\nSinh Viên Yêu Cầu"
+                                android:textColor="#f79684" />
                         </LinearLayout>
-                        <View
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginRight="5dp"
-                            android:background="@color/material_grey_300" />
                         <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_height="0dp"
+                           android:gravity="center"
                             android:orientation="vertical"
-                            android:gravity="center">
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/guideline4"
+                            app:layout_constraintTop_toTopOf="parent">
+                            <ImageView
+                                android:id="@+id/imageSinhVien1"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:scaleType="centerCrop"
+                                android:adjustViewBounds="true"
+                                android:paddingLeft="30dp"
+                                android:paddingTop="10dp"
+                                android:paddingRight="30dp"
+                                android:paddingBottom="10dp"/>
+
                             <TextView
+                                android:id="@+id/mssvSinhVien1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/roboto_thin"
-                                android:textColor="@color/black"
-                                android:text="Mã Sự Kiện:"/>
+                                android:textColor="#f79684" />
                             <TextView
-                                android:textAlignment="center"
-                                android:id="@+id/thongTinMaSuKienSinhVien1"
+                                android:id="@+id/thongTinTenSinhVien1Dau"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
                                 android:fontFamily="@font/roboto"
-                                android:layout_marginStart="5dp"
-                                android:textColor="@color/black"
-                                />
+                                android:textColor="#f79684"
+                                android:textSize="20sp" />
                         </LinearLayout>
-                        <View
-                            android:layout_width="1dp"
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
+            </com.ramotion.foldingcell.FoldingCell>
+
+            <com.ramotion.foldingcell.FoldingCell
+                android:layout_marginTop="30dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:id="@+id/folding_cell2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <FrameLayout
+                    android:id="@+id/cell_content_view2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="350dp">
+                        <com.vipulasri.ticketview.TicketView
+                            android:id="@+id/ticketViewSinhVien2"
+                            android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginRight="5dp"
-                            android:background="@color/material_grey_300" />
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:ticketBorderColor="@color/black"
+                            app:ticketBorderWidth="1dp"
+                            app:ticketCornerType="rounded"
+                            app:ticketDividerPadding="0dp"
+                            app:ticketDividerType="dash"
+                            app:ticketElevation="10dp"
+                            app:ticketOrientation="horizontal"
+                            app:ticketScallopPositionPercent="50"
+                            app:ticketScallopRadius="10dp"
+                            app:ticketShowBorder="false"
+                            app:ticketShowDivider="true" />
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/guideline6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            app:layout_constraintGuide_percent="0.5" />
                         <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_height="0dp"
                             android:orientation="vertical"
-                            android:gravity="center">
+                            android:padding="18dp"
+                            app:layout_constraintBottom_toTopOf="@+id/guideline6"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/ticketViewSinhVien2">
                             <TextView
+                                android:id="@+id/thongTinTenSinhVien2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto_thin"
-                                android:textColor="@color/black"
-                                android:text="Ngày lập:"/>
-                            <TextView
-                                android:textAlignment="center"
-                                android:id="@+id/thongTinNgayLapSinhVien1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
                                 android:fontFamily="@font/roboto"
-                                android:layout_marginStart="5dp"
                                 android:textColor="@color/black"
-                                />
+                                android:textSize="25sp" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/roboto_thin"
+                                    android:text="Giới Tính:"
+                                    android:textColor="@color/black" />
+                                <TextView
+                                    android:id="@+id/thongTinGioiTinhSinhVien2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="5dp"
+                                    android:fontFamily="@font/roboto"
+                                    android:textColor="@color/black" />
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Khoa:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinKhoaSinhVien2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="5dp"
+                                    android:layout_marginRight="5dp"
+                                    android:background="@color/material_grey_300" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Lớp:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinLopSinhVien2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="5dp"
+                                    android:layout_marginRight="5dp"
+                                    android:background="@color/material_grey_300" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Ngày Sinh:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinNgaySinhSinhVien2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+                            </LinearLayout>
+
                         </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:orientation="vertical"
+                            android:padding="18dp"
+                            app:layout_constraintBottom_toBottomOf="@+id/ticketViewSinhVien2"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/guideline6">
+
+                            <TextView
+                                android:id="@+id/thongTinSoHuuSinhVien2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:fontFamily="@font/roboto"
+                                android:textSize="20sp" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    android:id="@+id/thongTinMaVeSinhVien2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="40dp"
+                                    android:fontFamily="@font/roboto"
+                                    android:textColor="@color/black" />
+                                <TextView
+                                    android:id="@+id/viTriTieuDe2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/roboto_thin"
+                                    android:textColor="@color/black"
+                                    android:layout_marginStart="20dp"
+                                    android:text="Vị Trí:"/>
+                                <TextView
+                                    android:id="@+id/thongTinViTriSinhVien2"
+                                    android:layout_marginStart="5dp"
+                                    android:fontFamily="@font/roboto"
+                                    android:textColor="@color/black"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"/>
+                            </LinearLayout>
+
+
+                            <LinearLayout
+                                android:id="@+id/chiTietThongTinVeSinhVien2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Người Tạo:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinNguoiTaoVeSinhVien2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textAlignment="center"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="5dp"
+                                    android:layout_marginRight="5dp"
+                                    android:background="@color/material_grey_300" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Mã Sự Kiện:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinMaSuKienSinhVien2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textAlignment="center"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="5dp"
+                                    android:layout_marginRight="5dp"
+                                    android:background="@color/material_grey_300" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="@font/roboto_thin"
+                                        android:text="Ngày lập:"
+                                        android:textColor="@color/black" />
+
+                                    <TextView
+                                        android:id="@+id/thongTinNgayLapSinhVien2"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="5dp"
+                                        android:fontFamily="@font/roboto"
+                                        android:textAlignment="center"
+                                        android:textColor="@color/black" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/cell_title_view2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    >
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp">
+
+                        <com.vipulasri.ticketview.TicketView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+
+                            app:ticketBorderColor="@color/black"
+                            app:ticketBorderWidth="1dp"
+                            app:ticketCornerType="rounded"
+                            app:ticketDividerPadding="0dp"
+                            app:ticketDividerType="dash"
+                            app:ticketElevation="5dp"
+                            app:ticketOrientation="vertical"
+                            app:ticketScallopPositionPercent="30"
+                            app:ticketScallopRadius="10dp"
+                            app:ticketShowBorder="false"
+                            app:ticketShowDivider="true" />
+
+                        <androidx.constraintlayout.widget.Guideline
+                            android:id="@+id/guideline5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintGuide_percent="0.3" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/guideline5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="10dp"
+                                android:fontFamily="@font/allerta_stencil"
+                                android:text="Fast Event"
+                                android:textColor="#ff7378"
+                                android:textSize="15sp" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginEnd="10dp"
+                                android:background="@color/material_grey_300" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:fontFamily="@font/roboto"
+                                android:gravity="center"
+                                android:text="Thông Tin\nSinh Viên Nhận Vé"
+                                android:textColor="#f79684" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@+id/guideline5"
+                            app:layout_constraintTop_toTopOf="parent">
+                            <ImageView
+                                android:id="@+id/imageSinhVien2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:scaleType="centerCrop"
+                                android:adjustViewBounds="true"
+                                android:paddingLeft="30dp"
+                                android:paddingTop="10dp"
+                                android:paddingRight="30dp"
+                                android:paddingBottom="10dp"/>
+                            <TextView
+                                android:id="@+id/mssvSinhVien2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+
+                                android:fontFamily="@font/roboto_thin"
+                                android:textColor="#f79684" />
+
+                            <TextView
+
+                                android:id="@+id/thongTinTenSinhVien2Dau"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:fontFamily="@font/roboto"
+                                android:textColor="#f79684"
+                                android:textSize="20sp" />
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
+            </com.ramotion.foldingcell.FoldingCell>
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                android:layout_marginStart="20dp">
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp">
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    style="@style/Widget.Design.FloatingActionButton"
                     android:id="@+id/nutSinhVien1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerInParent="true"
-                    android:layout_marginEnd="120dp"
-                    android:layout_marginBottom="50dp"
-                    android:backgroundTint="@color/white"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="40dp"
                     android:elevation="0dp"
-                    android:src="@drawable/ic_baseline_arrow_forward_24"
-                    android:tint="@color/black"
+                    android:src="@drawable/ic_baseline_check_24"
+                    app:backgroundTint="@color/white"
                     app:borderWidth="0dp"
                     app:elevation="0dp"
                     app:fabCustomSize="50dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.947"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/nutHuySinhVien1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="40dp"
+                    android:elevation="0dp"
+                    android:src="@drawable/ic_baseline_close_24"
+                    app:backgroundTint="@color/white"
+                    app:borderWidth="0dp"
+                    app:elevation="0dp"
+                    app:fabCustomSize="50dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/nutSinhVien1"
+                    app:layout_constraintHorizontal_bias="0.067"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0" />
 

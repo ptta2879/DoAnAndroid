@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -37,7 +39,11 @@ public class YeuCauAdapter extends RecyclerView.Adapter<YeuCauAdapter.YeuCauView
         if (yeuCau != null){
             holder.sinhVienBan.setText(yeuCau.getMssvyeucau().toString());
             holder.sinhVienNhan.setText(yeuCau.getMssvnhan().toString());
-
+            if (!yeuCau.getTuongtac().equals("") ){
+                holder.chiTietYeuCau.setEnabled(false);
+                holder.noiDungYeuCau.setVisibility(View.GONE);
+                holder.progressBar.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -55,12 +61,16 @@ public class YeuCauAdapter extends RecyclerView.Adapter<YeuCauAdapter.YeuCauView
         private TextView sinhVienBan;
         private TextView sinhVienNhan;
         private CardView chiTietYeuCau;
+        private LinearLayout progressBar;
+        private ConstraintLayout noiDungYeuCau;
 
         public YeuCauViewHolder(@NonNull View itemView) {
             super(itemView);
             sinhVienBan = itemView.findViewById(R.id.sinhVienBan);
             sinhVienNhan =itemView.findViewById(R.id.sinhVienNhan);
             chiTietYeuCau = itemView.findViewById(R.id.layoutYeuCauChiTiet);
+            progressBar = itemView.findViewById(R.id.progressBar4);
+            noiDungYeuCau =itemView.findViewById(R.id.noiDungYeuCau);
             chiTietYeuCau.setOnClickListener(this);
         }
 

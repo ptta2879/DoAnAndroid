@@ -6,6 +6,15 @@ public class YeuCau {
     private Integer mssvnhan;
     private Integer mssvyeucau;
     private Integer trangthai;
+    private String tuongtac;
+
+    public String getTuongtac() {
+        return tuongtac;
+    }
+
+    public void setTuongtac(String tuongtac) {
+        this.tuongtac = tuongtac;
+    }
 
     public Integer getMssvnhan() {
         return mssvnhan;

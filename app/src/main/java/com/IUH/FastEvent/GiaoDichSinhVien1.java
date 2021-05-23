@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,9 @@ import com.IUH.FastEvent.Model.YeuCau;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,9 +38,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.Result;
 import com.r0adkll.slidr.Slidr;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+import okhttp3.OkHttpClient;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -47,10 +57,13 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
     private YeuCauAdapter yeuCauAdapter;
     private YeuCauViewModel yeuCauViewModel;
     private YeuCauAdapter.OnClickYeuCau listener;
+    private ExecutorService executorService;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         setContentView(R.layout.activity_giao_dich_moi);
         common = new Common();
         Slidr.attach(this);
@@ -75,7 +88,38 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
         listener = new YeuCauAdapter.OnClickYeuCau() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast.makeText(getApplicationContext(),yeuCaus.get(position).getMssvnhan().toString(),Toast.LENGTH_LONG).show();
+                SweetAlertDialog pDialog = new SweetAlertDialog(GiaoDichSinhVien1.this, SweetAlertDialog.PROGRESS_TYPE);
+                pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                pDialog.setTitleText("Loading");
+                pDialog.setCancelable(false);
+                pDialog.show();
+                String mssvYeuCau = yeuCaus.get(position).getMssvyeucau().toString();
+                String mssvNhan = yeuCaus.get(position).getMssvnhan().toString();
+                db.collection("yeucau").whereEqualTo("mssvyeucau",yeuCaus.get(position).getMssvyeucau()).whereEqualTo("trangthai",0)
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (QueryDocumentSnapshot doc: task.getResult()){
+                            if (doc.get("tuongtac").equals("")){
+                                String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+                                db.collection("yeucau").document(doc.getId()).update("tuongtac", email).addOnCompleteListener(
+                                        new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                Intent intent = new Intent(GiaoDichSinhVien1.this, ThongTinSinhVien1.class);
+                                                intent.putExtra(ThongTinSinhVien1.KEY_MSSV1, mssvYeuCau);
+                                                intent.putExtra(ThongTinSinhVien1.KEY_MSSV2, mssvNhan);
+                                                startActivity(intent);
+                                                pDialog.cancel();
+                                            }
+                                        }
+                                );
+                            }
+                            pDialog.cancel();
+                        }
+                    }
+                });
+
             }
         };
     }
@@ -85,7 +129,6 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
         super.onStart();
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(common,intentFilter);
-
     }
 
     @Override
@@ -104,6 +147,4 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
         unregisterReceiver(common);
         yeuCauViewModel.stopListenYeuCau();
     }
-
-
 }
