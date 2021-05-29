@@ -18,7 +18,8 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:icon,android:label"
         tools:targetApi="m">
-        <activity android:name=".TruyXuatVe"></activity>
+        <activity android:name=".TruyXuatVe"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".OnboardingScreen"
             android:screenOrientation="portrait" />
