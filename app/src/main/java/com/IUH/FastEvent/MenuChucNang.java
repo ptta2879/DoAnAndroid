@@ -83,9 +83,10 @@ public class MenuChucNang extends AppCompatActivity {
         root = FirebaseAuth.getInstance();
         FirebaseUser user = root.getCurrentUser();
         String email = user != null ? user.getEmail() : null;
-        if (email != null){
+        String uId = user != null ? user.getUid() : null;
+        if (uId != null){
             ExecutorService executorService = Executors.newFixedThreadPool(1);
-            Future<Integer> quyen  =  executorService.submit(new GetQuyen(email));
+            Future<Integer> quyen  =  executorService.submit(new GetQuyen(uId));
             chaoUser.setText("Xin Chào\n"+email);
             try {
                 phanQuyen = quyen.get();
@@ -98,7 +99,7 @@ public class MenuChucNang extends AppCompatActivity {
         chuNang1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(phanQuyen == 1 ){
+                if(phanQuyen == 1  || phanQuyen ==10){
                     Intent intent = new Intent(MenuChucNang.this,ThemVe.class);
                     startActivity(intent);
                 }else {
@@ -113,7 +114,7 @@ public class MenuChucNang extends AppCompatActivity {
         chuNang3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (phanQuyen ==3){
+                if (phanQuyen ==3 || phanQuyen ==10){
                     Intent intent = new Intent(MenuChucNang.this, GiaoDichSinhVien1.class);
                     startActivity(intent);
                 }else{
@@ -128,7 +129,7 @@ public class MenuChucNang extends AppCompatActivity {
         chuNang4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (phanQuyen == 2){
+                if (phanQuyen == 2 || phanQuyen ==10){
                     Intent intent = new Intent(MenuChucNang.this,XacNhanHoatDong.class);
                     startActivity(intent);
                 }else {
@@ -199,16 +200,16 @@ public class MenuChucNang extends AppCompatActivity {
         btnDangXuat =(ImageButton) findViewById(R.id.dangxuat);
     }
     static class GetQuyen implements Callable<Integer>{
-        private final String emailGet;
+        private final String uIdGet;
         private final StringBuilder url=new StringBuilder("https://ptta-cnm.herokuapp.com/congtacvien/");
         OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(20,TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true).build();
-        public GetQuyen(String email){
-            this.emailGet = email;
+        public GetQuyen(String uId){
+            this.uIdGet = uId;
         }
         @Override
         public Integer call() throws Exception {
-            url.append(emailGet);
+            url.append(uIdGet);
             Request.Builder builder = new Request.Builder();
             builder.url(url.toString());
             Request request = builder.build();

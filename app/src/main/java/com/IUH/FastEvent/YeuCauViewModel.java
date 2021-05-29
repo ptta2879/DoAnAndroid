@@ -32,31 +32,11 @@ public class YeuCauViewModel extends ViewModel {
     public YeuCauViewModel() {
         db = FirebaseFirestore.getInstance();
         mutableLiveData = new MutableLiveData<>();
-        listenYeuCau();
+    }
+    public void setMutableLiveData(ArrayList<YeuCau> yeuCaus){
+        mutableLiveData.setValue(yeuCaus);
     }
     public MutableLiveData<ArrayList<YeuCau>>  getMutableLiveData(){
         return mutableLiveData;
-    }
-    public void stopListenYeuCau(){
-        listenerRegistration.remove();
-    }
-    private void listenYeuCau(){
-        listenerRegistration = db.collection("yeucau").whereEqualTo("trangthai",0)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                        if (error != null){
-                            Log.e(TAG,error.toString());
-                        }
-                        ArrayList<YeuCau> yeuCaus = new ArrayList<>();
-                        for (DocumentSnapshot doc : value){
-                            YeuCau yeuCau = doc.toObject(YeuCau.class);
-                            if (yeuCau != null){
-                                yeuCaus.add(yeuCau);
-                            }
-                        }
-                        mutableLiveData.setValue(yeuCaus);
-                    }
-                });
     }
 }

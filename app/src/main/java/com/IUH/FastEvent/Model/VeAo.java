@@ -1,9 +1,19 @@
 package com.IUH.FastEvent.Model;
 
 public class VeAo {
+    private String mask;
+
+    public String getMask() {
+        return mask;
+    }
+
+    public void setMask(String mask) {
+        this.mask = mask;
+    }
+
     private String mave;
     private String mssv;
-    private String vitri;
+    private Integer vitri;
 
     public String getMave() {
         return mave;
@@ -22,11 +32,11 @@ public class VeAo {
     }
 
     public String getVitri() {
-        return vitri;
+        return vitri.toString();
     }
 
     public void setVitri(String vitri) {
-        this.vitri = vitri;
+        this.vitri = Integer.valueOf(vitri);
     }
 
     public VeAo() {
@@ -35,6 +45,6 @@ public class VeAo {
     public VeAo(String mave, String mssv, String vitri) {
         this.mave = mave;
         this.mssv = mssv;
-        this.vitri = vitri;
+        this.vitri = Integer.valueOf(vitri);
     }
 }

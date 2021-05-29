@@ -110,7 +110,6 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
         setContentView(R.layout.activity_thong_tin_sinh_vien1);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        Slidr.attach(this);
         AnhXa();
         final FoldingCell fc = findViewById(R.id.folding_cell);
         final FoldingCell fc2 = findViewById(R.id.folding_cell2);
@@ -202,6 +201,13 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                                     .enableSwipeToDismiss().setDuration(4000).show();
                         }
                     });
+                }else{
+                    Alerter.create(ThongTinSinhVien1.this)
+                            .setTitle("Phát hiện lỗi")
+                            .setText("Xác nhận yêu cầu không thành công")
+                            .setBackgroundColorRes(R.color.red)
+                            .setIcon(R.drawable.ic_baseline_close_24)
+                            .enableSwipeToDismiss().setDuration(4000).show();
                 }
             });
         } catch (Exception e) {
@@ -314,11 +320,9 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
-
                     try {
                         MultiFormatWriter writer = new MultiFormatWriter();
-                        BitMatrix bitMatrix = writer.encode(maVe, BarcodeFormat.CODE_39,100,50);
+                        BitMatrix bitMatrix = writer.encode(maVe, BarcodeFormat.CODE_39,300,50);
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                         Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
                         imgBarCode.setImageBitmap(bitmap);
@@ -332,7 +336,6 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                     }else{
                         soHuuSinhVien1.setTextColor(Color.RED);
                         soHuuSinhVien1.setText("Không Sở Hữu");
-                        nutGiaoDich.setVisibility(View.GONE);
                     }
                     viTriSinhVien1.setText(viTri);
                     maVeSinhVien1.setText(maVe);
@@ -360,7 +363,6 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                 ngaySinhSinhVien1.setText(sinhVien.getNgaySinh());
             }
         });
-
     }
     private void AnhXa(){
         nutGiaoDich =(FloatingActionButton) findViewById(R.id.nutSinhVien1);
@@ -441,6 +443,8 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                                     .setIcon(R.drawable.ic_baseline_close_24)
                                     .enableSwipeToDismiss().setDuration(4000).show();
                             progressBar.setVisibility(View.GONE);
+                            nutGiaoDich.setVisibility(View.GONE);
+                            linearLayout.setVisibility(View.VISIBLE);
                         }
                     });
                 }
@@ -565,7 +569,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                     public void run() {
                         try {
                             MultiFormatWriter writer = new MultiFormatWriter();
-                            BitMatrix bitMatrix = writer.encode(maVe, BarcodeFormat.CODE_39,100,50);
+                            BitMatrix bitMatrix = writer.encode(maVe, BarcodeFormat.CODE_39,300,50);
                             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                             Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
                             imgBarCode2.setImageBitmap(bitmap);
@@ -662,8 +666,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                                 docId = doc.getId();
                                 if (!Objects.equals(doc.get("tuongtac"), email)){
                                     Toast.makeText(ThongTinSinhVien1.this,"Đã có người xử lý",Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(ThongTinSinhVien1.this,GiaoDichSinhVien1.class);
-                                    startActivity(intent);
+                                    finish();
                                 }
                             }
                         }

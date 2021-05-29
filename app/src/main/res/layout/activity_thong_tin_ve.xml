@@ -107,7 +107,7 @@
                         android:scaleType="fitCenter" />
 
                     <TextView
-                        android:id="@+id/mssv"
+                        android:id="@+id/maVe"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/roboto_thin"
@@ -140,7 +140,14 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
-
+                            <TextView
+                                android:id="@+id/mssv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginEnd="40dp"
+                                android:fontFamily="@font/roboto"
+                                android:textColor="@color/black" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -262,13 +269,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
-                            <TextView
-                                android:id="@+id/maVe"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="40dp"
-                                android:fontFamily="@font/roboto"
-                                android:textColor="@color/black" />
+
                             <TextView
                                 android:id="@+id/viTriTieuDe"
                                 android:layout_width="wrap_content"
@@ -460,7 +461,9 @@
                     android:id="@+id/giaoDichView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"></LinearLayout>
+                    android:orientation="horizontal">
+
+                </LinearLayout>
             </HorizontalScrollView>
         </LinearLayout>
     </ScrollView>

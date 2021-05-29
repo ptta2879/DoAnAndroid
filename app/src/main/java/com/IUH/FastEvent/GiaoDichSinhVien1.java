@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.Toast;
 
 import com.IUH.FastEvent.Model.Common;
@@ -52,13 +53,15 @@ import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class GiaoDichSinhVien1 extends AppCompatActivity {
+    private static final String TAG ="GiaoDinhSinhVien" ;
     private RecyclerView recyclerView;
     private Common common;
     private YeuCauAdapter yeuCauAdapter;
     private YeuCauViewModel yeuCauViewModel;
     private YeuCauAdapter.OnClickYeuCau listener;
-    private ExecutorService executorService;
+    private DocumentSnapshot lastVisible;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private LinearLayoutManager linearLayoutManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +72,7 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
         Slidr.attach(this);
         recyclerView = findViewById(R.id.rcvYeuCau);
         yeuCauAdapter = new YeuCauAdapter();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(linearLayoutManager);
 
@@ -95,6 +98,7 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
                 pDialog.show();
                 String mssvYeuCau = yeuCaus.get(position).getMssvyeucau().toString();
                 String mssvNhan = yeuCaus.get(position).getMssvnhan().toString();
+
                 db.collection("yeucau").whereEqualTo("mssvyeucau",yeuCaus.get(position).getMssvyeucau()).whereEqualTo("trangthai",0)
                         .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -129,6 +133,23 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
         super.onStart();
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(common,intentFilter);
+        db.collection("yeucau").whereEqualTo("trangthai",0).whereEqualTo("tuongtac","").limit(20)
+                .addSnapshotListener(this,new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null){
+                            Log.e(TAG,error.toString());
+                        }
+                        ArrayList<YeuCau> yeuCaus = new ArrayList<>();
+                        for (DocumentSnapshot doc : value){
+                            YeuCau yeuCau = doc.toObject(YeuCau.class);
+                            if (yeuCau != null){
+                                yeuCaus.add(yeuCau);
+                            }
+                        }
+                        yeuCauViewModel.setMutableLiveData(yeuCaus);
+                    }
+                });
     }
 
     @Override
@@ -145,6 +166,5 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unregisterReceiver(common);
-        yeuCauViewModel.stopListenYeuCau();
     }
 }

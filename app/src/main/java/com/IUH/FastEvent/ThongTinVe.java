@@ -72,6 +72,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class ThongTinVe extends AppCompatActivity {
+    private static final String TAG = "ThongTinVe";
     private String mssv,url;
     private TextView nameSv,txtMssv,txtKhoa,txtLop,txtGioiTinh,txtNgaySinh,
             txtSoHuu,txtNguoiTao,txtTen,txtMaVe,txtNgayLap,txtMaSinhVien,
@@ -101,6 +102,7 @@ public class ThongTinVe extends AppCompatActivity {
         executorService = Executors.newFixedThreadPool(5);
         executorService.execute(new GetUrl(url));
         executorService.execute(new LayThongTin());
+
         executorService.shutdown();
     }
 
@@ -146,12 +148,12 @@ public class ThongTinVe extends AppCompatActivity {
                 String noiDung = Objects.requireNonNull(response.body()).string();
                 Gson gson = new Gson();
                 SinhVien[] sinhVienGet = gson.fromJson(noiDung, SinhVien[].class);
-                if (sinhVienGet.length ==0){
+                if (sinhVienGet.length == 0){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Alerter.create(ThongTinVe.this)
-                                    .setTitle("Thông Báo").setText("Không có thông tin vé của sinh viên trong hệ thống")
+                                    .setTitle("Thông Báo").setText("Không có thông tin của sinh viên trong hệ thống")
                                     .setBackgroundColorRes(R.color.red)
                                     .setIcon(R.drawable.ic_baseline_close_24)
                                     .enableSwipeToDismiss().setDuration(4000).show();
@@ -171,8 +173,8 @@ public class ThongTinVe extends AppCompatActivity {
     }
     class LayThongTin implements Runnable {
         private Tuple9<BigInteger, String, String, String, String, String, String, BigInteger, Boolean> a;
-        private ArrayList<Integer> listId;
-        private Tuple4<BigInteger, String, BigInteger, BigInteger> lichSu;
+//        private ArrayList<Integer> listId;
+//        private Tuple4<BigInteger, String, BigInteger, BigInteger> lichSu;
         @Override
         public void run() {
             ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
@@ -184,27 +186,42 @@ public class ThongTinVe extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            thongtinVe = new Ve(a);
-            try {
-                listId = (ArrayList<Integer>) suKien_sol_sukien.timLinhSu(thongtinVe.getMave()).send();
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (a!= null){
+                thongtinVe = new Ve(a);
+            }else{
+                return;
             }
-            ArrayList<LichSuModel> lichSuList = new ArrayList<LichSuModel>();
-            for(Object a: listId){
-                BigInteger id = new BigInteger(a.toString());
 
-                try {
-                    lichSu = suKien_sol_sukien.lichSu(id).send();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                LichSuModel lichSu1 = new LichSuModel(Objects.requireNonNull(lichSu));
-                lichSuList.add(lichSu1);
-            }
+//            try {
+//                listId = (ArrayList<Integer>) suKien_sol_sukien.timLinhSu(thongtinVe.getMave()).send();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            ArrayList<LichSuModel> lichSuList = new ArrayList<LichSuModel>();
+//            for(Object a: listId){
+//                BigInteger id = new BigInteger(a.toString());
+//
+//                try {
+//                    lichSu = suKien_sol_sukien.lichSu(id).send();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                LichSuModel lichSu1 = new LichSuModel(Objects.requireNonNull(lichSu));
+//                lichSuList.add(lichSu1);
+//            }
             web3j.shutdown();
-            showThongTinVe(thongtinVe);
-            showLichSu(lichSuList);
+            try {
+                showThongTinVe(thongtinVe);
+            } catch (WriterException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.getMessage(),e);
+                Alerter.create(ThongTinVe.this)
+                        .setTitle("Thông Báo").setText("Phát hiện lỗi không thể load được thông tin")
+                        .setBackgroundColorRes(R.color.red)
+                        .setIcon(R.drawable.ic_baseline_close_24)
+                        .enableSwipeToDismiss().setDuration(4000).show();
+            }
+//            showLichSu(lichSuList);
             checkTienTrinh.setTienTrinh2(true);
             checkTienTrinh.checkTienTrinh();
         }
@@ -222,33 +239,33 @@ public class ThongTinVe extends AppCompatActivity {
         }
     }
 
-    public void showLichSu(ArrayList<LichSuModel> lichSuModelArrayList){
-        for (LichSuModel lichSuModel : lichSuModelArrayList) {
-            LinearLayout linearLayout = (LinearLayout) findViewById(R.id.giaoDichView);
-            LayoutInflater inflater = LayoutInflater.from(ThongTinVe.this);
-            BigInteger mssvBan = lichSuModel.getMssvBan();
-            String mssvBanString = mssvBan.toString();
-            String maVe = lichSuModel.getMaVe();
-            String dateTimeGiaoDichString = lichSuModel.getDateString();
-            BigInteger mssvNhan = lichSuModel.getMssvNhan();
-            String mssvNhanString = mssvNhan.toString();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    View view = inflater.inflate(R.layout.giaodich_layout, linearLayout, false);
-                    txtMaVeGiaoDich = (TextView) view.findViewById(R.id.maVeGiaoDich);
-                    txtMaSinhVienGiaoDich = (TextView) view.findViewById(R.id.mssvBanGiaoDich);
-                    txtNgayGiaoDich = (TextView) view.findViewById(R.id.ngayBanGiaoDich);
-                    txtMaSinhVienNhan = (TextView) view.findViewById(R.id.mssvNhanGiaoDich);
-                    txtMaSinhVienGiaoDich.setText(mssvBanString);
-                    txtMaVeGiaoDich.setText(maVe);
-                    txtNgayGiaoDich.setText(dateTimeGiaoDichString);
-                    txtMaSinhVienNhan.setText(mssvNhanString);
-                    linearLayout.addView(view);
-                }
-            });
-        }
-    }
+//    public void showLichSu(ArrayList<LichSuModel> lichSuModelArrayList){
+//        for (LichSuModel lichSuModel : lichSuModelArrayList) {
+//            LinearLayout linearLayout = (LinearLayout) findViewById(R.id.giaoDichView);
+//            LayoutInflater inflater = LayoutInflater.from(ThongTinVe.this);
+//            BigInteger mssvBan = lichSuModel.getMssvBan();
+//            String mssvBanString = mssvBan.toString();
+//            String maVe = lichSuModel.getMaVe();
+//            String dateTimeGiaoDichString = lichSuModel.getDateString();
+//            BigInteger mssvNhan = lichSuModel.getMssvNhan();
+//            String mssvNhanString = mssvNhan.toString();
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    View view = inflater.inflate(R.layout.giaodich_layout, linearLayout, false);
+//                    txtMaVeGiaoDich = (TextView) view.findViewById(R.id.maVeGiaoDich);
+//                    txtMaSinhVienGiaoDich = (TextView) view.findViewById(R.id.mssvBanGiaoDich);
+//                    txtNgayGiaoDich = (TextView) view.findViewById(R.id.ngayBanGiaoDich);
+//                    txtMaSinhVienNhan = (TextView) view.findViewById(R.id.mssvNhanGiaoDich);
+//                    txtMaSinhVienGiaoDich.setText(mssvBanString);
+//                    txtMaVeGiaoDich.setText(maVe);
+//                    txtNgayGiaoDich.setText(dateTimeGiaoDichString);
+//                    txtMaSinhVienNhan.setText(mssvNhanString);
+//                    linearLayout.addView(view);
+//                }
+//            });
+//        }
+//    }
     public void AnhXa(){
         txtGioiTinh = (TextView) findViewById(R.id.gioiTinh);
         txtKhoa =(TextView) findViewById(R.id.khoa);
@@ -278,14 +295,9 @@ public class ThongTinVe extends AppCompatActivity {
         String ngaysinh = sinhvien.getNgaySinh();
         String ten = sinhvien.getTen();
         String fullName = hoVaTen+ " " + ten;
-        MultiFormatWriter writer = new MultiFormatWriter();
-        BitMatrix bitMatrix = writer.encode(mssvGetSinhVien, BarcodeFormat.CODE_39,600,150);
-        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-        Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                barCode.setImageBitmap(bitmap);
                 if(gioiTinh ==1 ){
                     txtGioiTinh.setText("Nam");
                 }
@@ -301,13 +313,14 @@ public class ThongTinVe extends AppCompatActivity {
         });
 
     }
-    protected void showThongTinVe(Ve info){
+    protected void showThongTinVe(Ve info) throws WriterException {
                 if (!info.getSohuu() && info.getMssv().compareTo(new BigInteger("0")) == 0 && info.getNguoiTao().isEmpty() && info.getMasukien().isEmpty()
                         && info.getHo().isEmpty() && info.getTen().isEmpty() && info.getMave().isEmpty()
                         && info.getDate().compareTo(new BigInteger("0")) == 0){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            barCode.setVisibility(View.GONE);
                             String thongTinKhongCo = "Không Có Thông Tin Về Vé";
                             txtMaVe.setText(thongTinKhongCo);
                             LinearLayout thongTin1 = findViewById(R.id.chiTietThongTinVe1);
@@ -318,6 +331,7 @@ public class ThongTinVe extends AppCompatActivity {
                         }
                     });
                 }else{
+
                     Boolean soHuu = info.getSohuu();
                     BigInteger mssvGetBlockChain = info.getMssv();
                     String mssvGetBlockChainString = mssvGetBlockChain.toString();
@@ -336,16 +350,22 @@ public class ThongTinVe extends AppCompatActivity {
                     SimpleDateFormat ngayLapFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
                     ngayLapFormat.setTimeZone(timeZoneVN);
                     dateTimeString = ngayLapFormat.format(ngayLap);
+                    MultiFormatWriter writer = new MultiFormatWriter();
+                    BitMatrix bitMatrix = writer.encode(maVe, BarcodeFormat.CODE_39,300,50);
+                    BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                    Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (soHuu){
+
                                 txtSoHuu.setTextColor(Color.GREEN);
                                 txtSoHuu.setText("Vé Hợp Lệ");
                             }else{
                                 txtSoHuu.setTextColor(Color.RED);
                                 txtSoHuu.setText("Không Sở Hữu");
                             }
+                            barCode.setImageBitmap(bitmap);
                             txtNguoiTao.setText(nguoiTao);
                             txtTen.setText(fullName);
                             txtViTri.setText(info.getVitri());
@@ -357,6 +377,15 @@ public class ThongTinVe extends AppCompatActivity {
                             }
                             txtMaSinhVien.setText(mssvGetBlockChainString);
                             txtMaSuKien.setText(maSuKien);
+                            barCode.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(ThongTinVe.this,TruyXuatVe.class);
+                                    intent.putExtra(TruyXuatVe.KEY_MA_VE,maVe);
+                                    intent.putExtra(TruyXuatVe.KEY_MA_SU_KIEN,maSuKien);
+                                    startActivity(intent);
+                                }
+                            });
                         }
                     });
                 }

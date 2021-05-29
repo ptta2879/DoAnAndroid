@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.IUH.FastEvent.Model.Common;
@@ -44,6 +45,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import java8.util.concurrent.CompletableFuture;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -58,6 +60,7 @@ interface GetSuKien{
     SuKien getSuKien() throws IOException;
 }
 public class ThemVe extends AppCompatActivity  implements EasyPermissions.PermissionCallbacks{
+    private static final String TAG="ThemVe.java";
     private SweetAlertDialog pDialog;
     private ExecutorService executorService;
     private static final int REQUEST_CAMERA = 1;
@@ -174,7 +177,6 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
         private Boolean success;
 
     }
-
     class TaoVe implements Runnable{
         private final String maSinhVien;
         private Boolean checkHoatDongTrueFalse;
@@ -247,7 +249,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                         .enableSwipeToDismiss().setDuration(4000).show();
                                 web3j.shutdown();
                             }else{
-                                if (setMssvVeAo(thongTinVeAo.getMave(),mssvInter.toString())){
+                                if(setMssvVeAo(thongTinVeAo.getMave(),mssvInter.toString())){
                                     TransactionReceipt themVeBlock = sukien_sol_sukien.createVe(mssvInter,nguoiTao,thongTinSinhVien.getHovaten(),thongTinSinhVien.getTen(),thongTinSuKien.getMasukien(),thongTinVeAo.getMave()
                                             ,thongTinVeAo.getVitri()).send();
                                     if (themVeBlock.isStatusOK()){
