@@ -164,22 +164,30 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
                         .setIcon(R.drawable.ic_baseline_close_24)
                         .enableSwipeToDismiss().setDuration(4000).show();
             }
-            if (congTacVien.getHoatdong() != null){
-                try {
-                    capNhapHoatDong(congTacVien.getHoatdong());
-                } catch (IOException e) {
-                    e.printStackTrace();
+            if (congTacVien != null){
+                if (congTacVien.getHoatdong() != null){
+                    try {
+                        capNhapHoatDong(congTacVien.getHoatdong());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    Alerter.create(XacNhanHoatDong.this)
+                            .setTitle("Thông Báo").setText("Chưa phân công hoạt động")
+                            .setBackgroundColorRes(R.color.red)
+                            .setIcon(R.drawable.ic_baseline_close_24)
+                            .enableSwipeToDismiss().setDuration(4000).show();
                 }
             }else{
                 Alerter.create(XacNhanHoatDong.this)
-                        .setTitle("Thông Báo").setText("Chưa phân công hoạt động")
+                        .setTitle("Thông Báo").setText("Không có thông tin về cộng tác viên")
                         .setBackgroundColorRes(R.color.red)
                         .setIcon(R.drawable.ic_baseline_close_24)
                         .enableSwipeToDismiss().setDuration(4000).show();
             }
         }
         protected CongTacVien congTacVien() throws IOException {
-            String user = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
+            String user = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
             String url = "https://ptta-cnm.herokuapp.com/congtacvien/"+ user;
             Request.Builder builder = new Request.Builder().url(url);
             Request request = builder.build();
@@ -187,7 +195,11 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
             String noiDung = Objects.requireNonNull(response.body()).string();
             Gson gson = new Gson();
             CongTacVien[] congTacViens = gson.fromJson(noiDung,CongTacVien[].class);
-            return congTacViens[0];
+            if (congTacViens.length == 0){
+                return null;
+            }else{
+                return congTacViens[0];
+            }
         }
         public void  capNhapHoatDong(String hoatDong) throws IOException {
             String mssvHoatDong = maSoSinhVien+"/"+hoatDong;

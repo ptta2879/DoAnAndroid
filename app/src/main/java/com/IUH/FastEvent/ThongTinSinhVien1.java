@@ -209,6 +209,15 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                             .setIcon(R.drawable.ic_baseline_close_24)
                             .enableSwipeToDismiss().setDuration(4000).show();
                 }
+            }).exceptionally(throwable -> {
+                Alerter.create(ThongTinSinhVien1.this)
+                        .setTitle("Phát hiện lỗi")
+                        .setText("Xác nhận yêu cầu không thành công")
+                        .setBackgroundColorRes(R.color.red)
+                        .setIcon(R.drawable.ic_baseline_close_24)
+                        .enableSwipeToDismiss().setDuration(4000).show();
+                Log.w(TAG,throwable.getMessage(),throwable);
+                return null;
             });
         } catch (Exception e) {
             pDialog.cancel();

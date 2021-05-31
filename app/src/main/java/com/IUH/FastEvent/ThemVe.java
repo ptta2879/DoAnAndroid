@@ -249,26 +249,36 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                         .enableSwipeToDismiss().setDuration(4000).show();
                                 web3j.shutdown();
                             }else{
-                                if(setMssvVeAo(thongTinVeAo.getMave(),mssvInter.toString())){
-                                    TransactionReceipt themVeBlock = sukien_sol_sukien.createVe(mssvInter,nguoiTao,thongTinSinhVien.getHovaten(),thongTinSinhVien.getTen(),thongTinSuKien.getMasukien(),thongTinVeAo.getMave()
-                                            ,thongTinVeAo.getVitri()).send();
-                                    if (themVeBlock.isStatusOK()){
+                                if (setMssvVeAo(thongTinVeAo.getMave(),mssvInter.toString())){
+                                    sukien_sol_sukien.createVe(mssvInter, nguoiTao, thongTinSinhVien.getHovaten(), thongTinSinhVien.getTen(), thongTinSuKien.getMasukien(), thongTinVeAo.getMave()
+                                            , thongTinVeAo.getVitri()).sendAsync().thenAccept(transactionReceipt -> {
+                                        if (transactionReceipt.isStatusOK()) {
+                                            pDialog.cancel();
+                                            Alerter.create(ThemVe.this)
+                                                    .setTitle("Thông Báo").setText("Cấp phát vé thành công")
+                                                    .setBackgroundColorRes(R.color.success)
+                                                    .setIcon(R.drawable.ic_baseline_check)
+                                                    .enableSwipeToDismiss().setDuration(4000).show();
+                                            web3j.shutdown();
+                                        } else {
+                                            pDialog.cancel();
+                                            Alerter.create(ThemVe.this)
+                                                    .setTitle("Thông Báo").setText("Cấp phát vé không thành công" +
+                                                    "Kết nối với ETH gặp sự cố")
+                                                    .setBackgroundColorRes(R.color.red)
+                                                    .setIcon(R.drawable.ic_baseline_close_24)
+                                                    .enableSwipeToDismiss().setDuration(4000).show();
+                                            web3j.shutdown();
+                                        }
+                                    }).exceptionally(throwable -> {
                                         pDialog.cancel();
                                         Alerter.create(ThemVe.this)
-                                                .setTitle("Thông Báo").setText("Cấp phát vé thành công")
-                                                .setBackgroundColorRes(R.color.success)
-                                                .setIcon(R.drawable.ic_baseline_check)
-                                                .enableSwipeToDismiss().setDuration(4000).show();
-                                    }else {
-                                        pDialog.cancel();
-                                        Alerter.create(ThemVe.this)
-                                                .setTitle("Thông Báo").setText("Cấp phát vé không thành công"+
-                                                "Kết nối với ETH gặp sự cố")
+                                                .setTitle("Thông Báo").setText("Vé đã được xác nhận")
                                                 .setBackgroundColorRes(R.color.red)
                                                 .setIcon(R.drawable.ic_baseline_close_24)
                                                 .enableSwipeToDismiss().setDuration(4000).show();
-                                        web3j.shutdown();
-                                    }
+                                        return null;
+                                    });
                                 }else{
                                     pDialog.cancel();
                                     Alerter.create(ThemVe.this)
@@ -280,12 +290,11 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                     web3j.shutdown();
                                 }
                             }
-
                         } catch (Exception e) {
                             e.printStackTrace();
                             pDialog.cancel();
                             Alerter.create(ThemVe.this)
-                                    .setTitle("Thông Báo").setText("Vé đã được xác nhận")
+                                    .setTitle("Thông Báo").setText("Không lấy được số lượng vé đã cấp phát")
                                     .setBackgroundColorRes(R.color.red)
                                     .setIcon(R.drawable.ic_baseline_close_24)
                                     .enableSwipeToDismiss().setDuration(4000).show();
@@ -302,7 +311,8 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                 }else{
                     pDialog.cancel();
                     Alerter.create(ThemVe.this)
-                            .setTitle("Thông Báo").setText("Không đủ điều kiện")
+                            .setTitle("Không đủ điều kiện").setText("Phải tham gia đủ các" +
+                            " hoạt động hoặc bạn là sinh viên năm nhất")
                             .setBackgroundColorRes(R.color.red)
                             .setIcon(R.drawable.ic_baseline_close_24)
                             .enableSwipeToDismiss().setDuration(4000).show();
@@ -360,7 +370,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
             }
         }
         public VeAo getVe() throws IOException {
-            String urlVeAo = "https://ptta-cnm.herokuapp.com/ve";
+            String urlVeAo = "https://ptta-cnm.herokuapp.com/ve/"+thongTinSuKien.getMasukien();
             Request.Builder builder = new Request.Builder();
             builder.url(urlVeAo);
             Request request = builder.build();
