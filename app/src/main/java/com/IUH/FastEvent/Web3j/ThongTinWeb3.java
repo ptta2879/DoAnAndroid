@@ -11,6 +11,7 @@ public class ThongTinWeb3 {
     public static final BigInteger GAS_PRICE= new BigInteger("20000000000");
     public static final BigInteger GAS_LIMIT = new BigInteger("6721975") ;
     public static final String URL = "https://kovan.infura.io/v3/be4ca854504647adbc9649897b72a5a6";
+    public static final String WEBSOCKET = "wss://kovan.infura.io/ws/v3/be4ca854504647adbc9649897b72a5a6";
 
     public Credentials getCredentialsWallet(){
         return Credentials.create(PRIVATE_KEY);

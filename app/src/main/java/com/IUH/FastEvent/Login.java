@@ -11,6 +11,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.IUH.FastEvent.Model.Common;
+import com.IUH.FastEvent.Model.CongTacVien;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,12 +34,21 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 public class Login extends AppCompatActivity {
     private static final int REQUEST_CAMERA = 1;
+    private static final String TAG ="Login.java" ;
     private FirebaseAuth root;
     private TextView chao, chaoCongTacVien, txtDangNhap;
     private TextInputLayout username;
@@ -43,6 +56,7 @@ public class Login extends AppCompatActivity {
     private FloatingActionButton btnDangNhap;
     private ImageView imageNen,imageLogo;
     private Common common;
+    private SweetAlertDialog pDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,18 +109,46 @@ public class Login extends AppCompatActivity {
                                 password.setError("Không được để trống");
                             }
                         }else{
+                            pDialog = new SweetAlertDialog(Login.this, SweetAlertDialog.PROGRESS_TYPE);
+                            pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                            pDialog.setTitleText("Đang xử lý");
+                            pDialog.setCancelable(false);
+                            pDialog.show();
                             root.signInWithEmailAndPassword(usernameString, passwordString)
                                     .addOnCompleteListener(Login.this, new OnCompleteListener<AuthResult>() {
                                         @Override
                                         public void onComplete(@NonNull Task<AuthResult> task) {
                                             if (task.isSuccessful()) {
                                                 // Sign in success, update UI with the signed-in user's information
-                                                Toast.makeText(Login.this, "Đang Xử Lý..." ,Toast.LENGTH_SHORT).show();
-                                                Intent ax = new Intent(Login.this, MenuChucNang.class);
-                                                startActivity(ax);
-                                                finish();
+                                                new Thread(new Runnable() {
+                                                    private final StringBuilder url=new StringBuilder("https://ptta-cnm.herokuapp.com/congtacvien/");
+                                                    private final OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(20,TimeUnit.SECONDS)
+                                                            .retryOnConnectionFailure(true).build();
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            url.append(root.getUid());
+                                                            Request.Builder builder = new Request.Builder();
+                                                            builder.url(url.toString());
+                                                            Request request = builder.build();
+                                                            Response response = okHttpClient.newCall(request).execute();
+                                                            String noidung = Objects.requireNonNull(response.body()).string();
+                                                            Gson gson = new Gson();
+                                                            CongTacVien[] congTacVien = gson.fromJson(noidung, CongTacVien[].class);
+                                                            pDialog.dismissWithAnimation();
+                                                            Intent ax = new Intent(Login.this, MenuChucNang.class);
+                                                            ax.putExtra(MenuChucNang.KEY_PHANQUYEN,congTacVien[0].getPhanQuyen());
+                                                            startActivity(ax);
+                                                            finish();
+                                                        }catch (IOException e) {
+                                                            e.printStackTrace();
+                                                            Log.w(TAG,e.getMessage(),e);
+                                                        }
+                                                    }
+                                                }).start();
                                             } else {
                                                 // If sign in fails, display a message to the user.
+                                                pDialog.dismissWithAnimation();
                                                 Toast.makeText(Login.this, "Sai Tài Khoản Hoặc Mật Khẩu" ,Toast.LENGTH_SHORT).show();
                                             }
                                         }

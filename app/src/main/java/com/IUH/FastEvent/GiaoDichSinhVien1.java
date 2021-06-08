@@ -114,12 +114,12 @@ public class GiaoDichSinhVien1 extends AppCompatActivity {
                                                 intent.putExtra(ThongTinSinhVien1.KEY_MSSV1, mssvYeuCau);
                                                 intent.putExtra(ThongTinSinhVien1.KEY_MSSV2, mssvNhan);
                                                 startActivity(intent);
-                                                pDialog.cancel();
+                                                pDialog.dismissWithAnimation();
                                             }
                                         }
                                 );
                             }
-                            pDialog.cancel();
+                            pDialog.dismissWithAnimation();
                         }
                     }
                 });

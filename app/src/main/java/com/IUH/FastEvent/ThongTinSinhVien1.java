@@ -34,11 +34,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -100,7 +103,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
     private CheckTienTrinh checkTienTrinh;
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
-    private String docId;
+    private String docId,docIdVe;
     private ExecutorService executorService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,7 +155,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
 
     @Override
     public void xacNhanYeuCau(BigInteger mssvYeuCau, BigInteger mssvNhan, Ve ve, SinhVien sinhVien){
-
+        String docIdVe = null;
         SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Vui lòng đợi...");
@@ -173,13 +176,12 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    pDialog.cancel();
+                                    pDialog.dismissWithAnimation();
                                     nutGiaoDich.setVisibility(View.GONE);
                                     nutHuy.setVisibility(View.GONE);
                                     Alerter.create(ThongTinSinhVien1.this)
                                             .setTitle("Xác nhận yêu cầu thành công")
-                                            .setText("Bạn đã xác nhận yêu cầu thành công."+
-                                                    "Bạn có thể quay lại và xác nhận yêu cầu khác")
+                                            .setText("Bạn đã xác nhận yêu cầu thành công.")
                                             .setBackgroundColorRes(R.color.success)
                                             .setIcon(R.drawable.ic_baseline_check)
                                             .enableSwipeToDismiss().setDuration(4000).show();
@@ -190,7 +192,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                         public void onFailure(@NonNull Exception e){
                             nutGiaoDich.setVisibility(View.GONE);
                             nutHuy.setVisibility(View.GONE);
-                            pDialog.cancel();
+                            pDialog.dismissWithAnimation();
                             web3j.shutdown();
                             Log.w(TAG, e.getMessage(), e);
                             Alerter.create(ThongTinSinhVien1.this)
@@ -201,7 +203,48 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                                     .enableSwipeToDismiss().setDuration(4000).show();
                         }
                     });
+                    firestore.collection("ve").whereEqualTo("mave",ve.getMave()).get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    for ( QueryDocumentSnapshot doc: task.getResult()){
+                                        firestore.collection("ve").document(doc.getId())
+                                                .update("mssv",mssvNhan.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                pDialog.dismissWithAnimation();
+                                                nutGiaoDich.setVisibility(View.GONE);
+                                                nutHuy.setVisibility(View.GONE);
+                                                Alerter.create(ThongTinSinhVien1.this)
+                                                        .setTitle("Xác nhận yêu cầu thành công")
+                                                        .setText("Xử lý dữ liệu vé hoàn thành")
+                                                        .setBackgroundColorRes(R.color.success)
+                                                        .setIcon(R.drawable.ic_baseline_check)
+                                                        .enableSwipeToDismiss().setDuration(4000).show();
+                                                web3j.shutdown();
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                nutGiaoDich.setVisibility(View.GONE);
+                                                nutHuy.setVisibility(View.GONE);
+                                                pDialog.dismissWithAnimation();
+                                                web3j.shutdown();
+                                                Log.d(TAG, e.getMessage(), e);
+                                                Alerter.create(ThongTinSinhVien1.this)
+                                                        .setTitle("Phát hiện lỗi")
+                                                        .setText("Chưa thay đổi được mssv vì lỗi phát sinh")
+                                                        .setBackgroundColorRes(R.color.red)
+                                                        .setIcon(R.drawable.ic_baseline_close_24)
+                                                        .enableSwipeToDismiss().setDuration(4000).show();
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+
                 }else{
+                    pDialog.dismissWithAnimation();
                     Alerter.create(ThongTinSinhVien1.this)
                             .setTitle("Phát hiện lỗi")
                             .setText("Xác nhận yêu cầu không thành công")
@@ -210,6 +253,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                             .enableSwipeToDismiss().setDuration(4000).show();
                 }
             }).exceptionally(throwable -> {
+                pDialog.dismissWithAnimation();
                 Alerter.create(ThongTinSinhVien1.this)
                         .setTitle("Phát hiện lỗi")
                         .setText("Xác nhận yêu cầu không thành công")
@@ -220,7 +264,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                 return null;
             });
         } catch (Exception e) {
-            pDialog.cancel();
+            pDialog.dismissWithAnimation();
             web3j.shutdown();
             e.printStackTrace();
             Log.w(TAG,e.getMessage(),e);

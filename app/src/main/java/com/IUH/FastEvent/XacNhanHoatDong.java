@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -31,6 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -43,6 +45,8 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
     private ExecutorService executorService;
     protected String mssv;
     private Common common;
+    private SweetAlertDialog pDialog;
+    private static final String TAG ="XacNhanHoatDong.java" ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +56,23 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
         CodeScannerView codeScannerView = findViewById(R.id.xacNhanHoatDong);
         executorService = Executors.newFixedThreadPool(1);
         codeScanner = new CodeScanner(this, codeScannerView);
+
         codeScanner.setDecodeCallback(new DecodeCallback() {
             @Override
             public void onDecoded(@NonNull Result result) {
                 mssv = result.getText();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pDialog = new SweetAlertDialog(XacNhanHoatDong.this, SweetAlertDialog.PROGRESS_TYPE);
+                        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                        pDialog.setTitleText("Đang xử lý");
+                        pDialog.setCancelable(false);
+                        pDialog.show();
+                        executorService.submit(new HoatDong(mssv));
+                    }
+                });
 
-                executorService.execute(new HoatDong(mssv));
             }
         });
         codeScannerView.setOnClickListener(new View.OnClickListener() {
@@ -145,6 +160,7 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
         }
     }
     class HoatDong implements Runnable{
+
         OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(20,TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true).build();
         private final String maSoSinhVien;
@@ -154,10 +170,12 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
         }
         @Override
         public void run() {
+
             try {
                 congTacVien = congTacVien();
             } catch (IOException e) {
                 e.printStackTrace();
+                pDialog.dismissWithAnimation();
                 Alerter.create(XacNhanHoatDong.this)
                         .setTitle("Thông Báo").setText("Lỗi kết nối")
                         .setBackgroundColorRes(R.color.red)
@@ -170,8 +188,16 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
                         capNhapHoatDong(congTacVien.getHoatdong());
                     } catch (IOException e) {
                         e.printStackTrace();
+                        Log.w(TAG,e.getMessage(),e);
+                        pDialog.dismissWithAnimation();
+                        Alerter.create(XacNhanHoatDong.this)
+                                .setTitle("Phát hiện lỗi").setText("Xuất hiện lỗi không thể xác nhận hoạt động")
+                                .setBackgroundColorRes(R.color.red)
+                                .setIcon(R.drawable.ic_baseline_close_24)
+                                .enableSwipeToDismiss().setDuration(4000).show();
                     }
                 }else{
+                    pDialog.dismissWithAnimation();
                     Alerter.create(XacNhanHoatDong.this)
                             .setTitle("Thông Báo").setText("Chưa phân công hoạt động")
                             .setBackgroundColorRes(R.color.red)
@@ -179,6 +205,7 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
                             .enableSwipeToDismiss().setDuration(4000).show();
                 }
             }else{
+                pDialog.dismissWithAnimation();
                 Alerter.create(XacNhanHoatDong.this)
                         .setTitle("Thông Báo").setText("Không có thông tin về cộng tác viên")
                         .setBackgroundColorRes(R.color.red)
@@ -188,7 +215,7 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
         }
         protected CongTacVien congTacVien() throws IOException {
             String user = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-            String url = "https://ptta-cnm.herokuapp.com/congtacvien/"+ user;
+            String url = "https://ptta-cnm.herokuapp.com/congtacvien/"+user;
             Request.Builder builder = new Request.Builder().url(url);
             Request request = builder.build();
             Response response = okHttpClient.newCall(request).execute();
@@ -211,12 +238,14 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
             Gson gson = new Gson();
             ThongBao success = gson.fromJson(noidDung,ThongBao.class);
             if(success.getSuccess()){
+                pDialog.dismissWithAnimation();
                 Alerter.create(XacNhanHoatDong.this)
                         .setTitle("Thông Báo").setText("Xác nhận hoạt động thành công")
                         .setBackgroundColorRes(R.color.success)
                         .setIcon(R.drawable.ic_baseline_check)
                         .enableSwipeToDismiss().setDuration(4000).show();
             }else{
+                pDialog.dismissWithAnimation();
                 Alerter.create(XacNhanHoatDong.this)
                         .setTitle("Thông Báo").setText("Xảy ra lỗi")
                         .setBackgroundColorRes(R.color.red)

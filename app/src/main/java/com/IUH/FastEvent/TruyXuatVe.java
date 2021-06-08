@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -70,26 +71,21 @@ public class TruyXuatVe extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         setContentView(R.layout.activity_truy_xuat_ve);
-        ProgressBar progressBarTruyXuat = findViewById(R.id.progressBarTruyXuat);
-        ImageView backTruyXuat = findViewById(R.id.truyxuatback);
+
+        ImageButton backTruyXuat = findViewById(R.id.truyxuatback);
         backTruyXuat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
-                executorService.shutdown();
-                web3j.shutdown();
             }
         });
         common = new Common();
         Intent intent = getIntent();
         maVe =  intent.getStringExtra(KEY_MA_VE);
         maSuKien = intent.getStringExtra(KEY_MA_SU_KIEN);
-        executorService = Executors.newFixedThreadPool(2);
+        executorService = Executors.newCachedThreadPool();
         Future<?> thread1 = executorService.submit(new GetLichSu());
-        if (thread1.isDone()){
-            progressBarTruyXuat.setVisibility(View.GONE);
-            web3j.shutdown();
-        }
+
     }
 
     @Override
@@ -104,14 +100,14 @@ public class TruyXuatVe extends AppCompatActivity {
         super.onStop();
         unregisterReceiver(common);
         executorService.shutdown();
+        web3j.shutdown();
     }
     class GetLichSu implements Runnable{
-        private ArrayList<LichSuModel> lichSuModelArrayList;
         private final OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(20,TimeUnit.SECONDS).retryOnConnectionFailure(true).build();
         @Override
         public void run() {
-            lichSuModelArrayList = new ArrayList<LichSuModel>();
+            ArrayList<LichSuModel> lichSuModelArrayList = new ArrayList<LichSuModel>();
             ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
             web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
             Sukien_sol_Sukien sukien_sol_sukien= Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j,thongTinWeb3.getCredentialsWallet(),
@@ -133,25 +129,13 @@ public class TruyXuatVe extends AppCompatActivity {
                     SinhVien sinhVien2 = getSinhVien(chiTiet.getMssvNhan());
                     LinearLayout linearLayout = findViewById(R.id.truyXuatNew);
                     LayoutInflater inflater = LayoutInflater.from(TruyXuatVe.this);
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            ProgressBar progressBarTruyXuat = findViewById(R.id.progressBarTruyXuat);
                             View v = inflater.inflate(R.layout.giaodich_layout,linearLayout,false);
-                            txtMssv1 = v.findViewById(R.id.mssvBanGiaoDich);
-                            txtMssv2 = v.findViewById(R.id.mssvNhanGiaoDich);
-                            txtTenSinhVien1 = v.findViewById(R.id.truyXuatHoVaTen1);
-                            txtTenSinhVien2 = v.findViewById(R.id.truyXuatHoVaTen2);
-                            txtGioiTinh1 = v.findViewById(R.id.truyXuatGioiTinh1);
-                            txtGioiTinh2 = v.findViewById(R.id.truyXuatGioiTinh2);
-                            txtKhoa1 = v.findViewById(R.id.truyXuatKhoa1);
-                            txtKhoa2 = v.findViewById(R.id.truyXuatKhoa2);
-                            txtLop1 = v.findViewById(R.id.truyXuatLop1);
-                            txtLop2 = v.findViewById(R.id.truyXuatLop2);
-                            txtNgaySinh1 = v.findViewById(R.id.truyXuatNgaySinh1);
-                            txtNgaySinh2 = v.findViewById(R.id.truyXuatNgaySinh2);
-                            txtMaVe = v.findViewById(R.id.truyXuatMaVe);
-                            barCode = v.findViewById(R.id.truyXuatBarCode);
-                            txtDateBan = v.findViewById(R.id.truyXuatNgayBan);
+                            anhxa(v);
                             String fullname = sinhVien1.getHovaten() + " "+ sinhVien1.getTen();
                             txtTenSinhVien1.setText(fullname);
                             if (sinhVien1.getGoitinh() ==1){
@@ -177,6 +161,7 @@ public class TruyXuatVe extends AppCompatActivity {
                             txtLop2.setText(sinhVien2.getLop());
                             txtMssv2.setText(sinhVien2.getMssv());
                             txtMaVe.setText(maVe);
+                            txtDateBan.setText(chiTiet.getDateString());
                             try {
                                 MultiFormatWriter writer = new MultiFormatWriter();
                                 BitMatrix bitMatrix = writer.encode(maVe, BarcodeFormat.CODE_39,300,50);
@@ -187,6 +172,7 @@ public class TruyXuatVe extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                             linearLayout.addView(v);
+                            progressBarTruyXuat.setVisibility(View.GONE);
                         }
                     });
                 } catch (IOException e) {
@@ -194,6 +180,23 @@ public class TruyXuatVe extends AppCompatActivity {
                     Log.w(TAG,e.getMessage(),e);
                 }
             }
+        }
+        private void anhxa(View v){
+            txtMssv1 = v.findViewById(R.id.mssvBanGiaoDich);
+            txtMssv2 = v.findViewById(R.id.mssvNhanGiaoDich);
+            txtTenSinhVien1 = v.findViewById(R.id.truyXuatHoVaTen1);
+            txtTenSinhVien2 = v.findViewById(R.id.truyXuatHoVaTen2);
+            txtGioiTinh1 = v.findViewById(R.id.truyXuatGioiTinh1);
+            txtGioiTinh2 = v.findViewById(R.id.truyXuatGioiTinh2);
+            txtKhoa1 = v.findViewById(R.id.truyXuatKhoa1);
+            txtKhoa2 = v.findViewById(R.id.truyXuatKhoa2);
+            txtLop1 = v.findViewById(R.id.truyXuatLop1);
+            txtLop2 = v.findViewById(R.id.truyXuatLop2);
+            txtNgaySinh1 = v.findViewById(R.id.truyXuatNgaySinh1);
+            txtNgaySinh2 = v.findViewById(R.id.truyXuatNgaySinh2);
+            txtMaVe = v.findViewById(R.id.truyXuatMaVe);
+            barCode = v.findViewById(R.id.truyXuatBarCode);
+            txtDateBan = v.findViewById(R.id.truyXuatNgayBan);
         }
         private SinhVien getSinhVien(BigInteger maSinhVien) throws IOException {
             String url = "https://ptta-cnm.herokuapp.com/taikhoan/"+ maSinhVien.toString();

@@ -241,7 +241,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                             BigInteger ve = sukien_sol_sukien.veMapping(thongTinSuKien.getMasukien()).send();
                             BigInteger choGoi = BigInteger.valueOf(thongTinSuKien.getChongoi().longValue());
                             if(ve.compareTo(choGoi) == 0){
-                                pDialog.cancel();
+                                pDialog.dismissWithAnimation();
                                 Alerter.create(ThemVe.this)
                                         .setTitle("Thông Báo").setText("Số lượng vé đã đủ")
                                         .setBackgroundColorRes(R.color.red)
@@ -253,7 +253,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                     sukien_sol_sukien.createVe(mssvInter, nguoiTao, thongTinSinhVien.getHovaten(), thongTinSinhVien.getTen(), thongTinSuKien.getMasukien(), thongTinVeAo.getMave()
                                             , thongTinVeAo.getVitri()).sendAsync().thenAccept(transactionReceipt -> {
                                         if (transactionReceipt.isStatusOK()) {
-                                            pDialog.cancel();
+                                            pDialog.dismissWithAnimation();
                                             Alerter.create(ThemVe.this)
                                                     .setTitle("Thông Báo").setText("Cấp phát vé thành công")
                                                     .setBackgroundColorRes(R.color.success)
@@ -261,7 +261,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                                     .enableSwipeToDismiss().setDuration(4000).show();
                                             web3j.shutdown();
                                         } else {
-                                            pDialog.cancel();
+                                            pDialog.dismissWithAnimation();
                                             Alerter.create(ThemVe.this)
                                                     .setTitle("Thông Báo").setText("Cấp phát vé không thành công" +
                                                     "Kết nối với ETH gặp sự cố")
@@ -271,7 +271,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                             web3j.shutdown();
                                         }
                                     }).exceptionally(throwable -> {
-                                        pDialog.cancel();
+                                        pDialog.dismissWithAnimation();
                                         Alerter.create(ThemVe.this)
                                                 .setTitle("Thông Báo").setText("Vé đã được xác nhận")
                                                 .setBackgroundColorRes(R.color.red)
@@ -280,7 +280,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                         return null;
                                     });
                                 }else{
-                                    pDialog.cancel();
+                                    pDialog.dismissWithAnimation();
                                     Alerter.create(ThemVe.this)
                                             .setTitle("Thông Báo").setText("Cấp phát vé không thành công"+
                                             "Cloud gặp sự cố")
@@ -292,7 +292,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            pDialog.cancel();
+                            pDialog.dismissWithAnimation();
                             Alerter.create(ThemVe.this)
                                     .setTitle("Thông Báo").setText("Không lấy được số lượng vé đã cấp phát")
                                     .setBackgroundColorRes(R.color.red)
@@ -301,7 +301,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                             web3j.shutdown();
                         }
                     }else{
-                        pDialog.cancel();
+                        pDialog.dismissWithAnimation();
                         Alerter.create(ThemVe.this)
                                 .setTitle("Thông Báo").setText("Không đủ thông tin")
                                 .setBackgroundColorRes(R.color.red)
@@ -309,7 +309,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                 .enableSwipeToDismiss().setDuration(4000).show();
                     }
                 }else{
-                    pDialog.cancel();
+                    pDialog.dismissWithAnimation();
                     Alerter.create(ThemVe.this)
                             .setTitle("Không đủ điều kiện").setText("Phải tham gia đủ các" +
                             " hoạt động hoặc bạn là sinh viên năm nhất")
@@ -336,7 +336,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        pDialog.cancel();
+                        pDialog.dismissWithAnimation();
                         Alerter.create(ThemVe.this)
                                 .setTitle("Thông Báo").setText("Không có thông tin")
                                 .setBackgroundColorRes(R.color.red)
