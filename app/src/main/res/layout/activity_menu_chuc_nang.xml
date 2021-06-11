@@ -17,6 +17,16 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/backgroud_menu_sang" />
 
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
     <ScrollView
@@ -38,6 +48,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/loadSoLuong"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginEnd="20dp"
+                    app:lottie_fileName="icons8_synchronize.json"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/SoLuongVe"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/txtChucNang"
@@ -70,10 +89,10 @@
                     android:id="@+id/SoLuongVe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:textColor="@color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.923"
-                    app:layout_constraintStart_toEndOf="@+id/txtChucNang"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
@@ -134,7 +153,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="12dp"
                                 android:textStyle="bold"
-                                android:text="Xác nhận vé"
+                                android:text="Cấp phát vé"
                                 android:textColor="#6f6f6f"
                                 android:textSize="18sp" />
                         </LinearLayout>

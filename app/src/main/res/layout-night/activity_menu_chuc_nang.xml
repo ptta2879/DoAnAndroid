@@ -17,8 +17,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/backgroud_menu_toi" />
 
-
-
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
@@ -37,9 +35,19 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/loadSoLuong"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginEnd="20dp"
+                    app:lottie_loop="true"
+                    app:lottie_fileName="icons8_synchronize.json"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/SoLuongVe"
+                    app:layout_constraintTop_toTopOf="parent" />
                 <TextView
                     android:id="@+id/SoLuongVe"
+                    android:textColor="@color/white"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -130,7 +138,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="12dp"
                                 android:textStyle="bold"
-                                android:text="Xác nhận vé"
+                                android:text="Cấp phát vé"
                                 android:textColor="#6f6f6f"
                                 android:textSize="18sp" />
                         </LinearLayout>

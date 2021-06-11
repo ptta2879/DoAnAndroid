@@ -4,6 +4,7 @@ package com.IUH.FastEvent.Model;
 public class SuKien {
     private Integer chongoi;
     private String masukien;
+    private String namhoc;
     private String[] hoatdong;
 
     public SuKien(Integer chongoi, String masukien, String[] hoatdong){
@@ -11,6 +12,22 @@ public class SuKien {
         this.masukien = masukien;
         this.hoatdong = hoatdong;
     }
+
+    public SuKien(Integer chongoi, String masukien, String namhoc, String[] hoatdong) {
+        this.chongoi = chongoi;
+        this.masukien = masukien;
+        this.namhoc = namhoc;
+        this.hoatdong = hoatdong;
+    }
+
+    public String getNamhoc() {
+        return namhoc;
+    }
+
+    public void setNamhoc(String namhoc) {
+        this.namhoc = namhoc;
+    }
+
     public void setHoatdong(String[] hoatdong) {
         this.hoatdong = hoatdong;
     }

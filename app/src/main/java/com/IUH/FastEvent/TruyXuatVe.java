@@ -56,13 +56,15 @@ import okhttp3.Response;
 public class TruyXuatVe extends AppCompatActivity {
     private static final String TAG ="TruyXuatVe.java" ;
     private TextView txtTenSinhVien1,txtGioiTinh1,txtKhoa1,txtNgaySinh1,txtLop1,txtMssv1,
-            txtTenSinhVien2,txtGioiTinh2,txtKhoa2,txtNgaySinh2,txtLop2,txtMssv2, txtMaVe, txtDateBan;
+            txtTenSinhVien2,txtGioiTinh2,txtKhoa2,txtNgaySinh2,txtLop2,txtMssv2, txtMaVe, txtDateBan
+            ,txtThongTinNull;
     private ImageView barCode;
     private String maVe;
     private String maSuKien;
     public static final String KEY_MA_VE="key_maVe";
     public static final String KEY_MA_SU_KIEN="Sukien_ma";
     private Common common;
+    private ProgressBar progressBarTruyXuat;
     private Web3j web3j;
     private ExecutorService executorService;
     @Override
@@ -71,7 +73,8 @@ public class TruyXuatVe extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         setContentView(R.layout.activity_truy_xuat_ve);
-
+        progressBarTruyXuat = findViewById(R.id.progressBarTruyXuat);
+        txtThongTinNull = findViewById(R.id.textThongTinTruyXuat);
         ImageButton backTruyXuat = findViewById(R.id.truyxuatback);
         backTruyXuat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,64 +125,76 @@ public class TruyXuatVe extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.d(TAG,e.getMessage(),e);
             }
-            for (LichSuModel chiTiet: lichSuModelArrayList){
-                try {
-                    SinhVien sinhVien1 = getSinhVien(chiTiet.getMssvBan());
-                    SinhVien sinhVien2 = getSinhVien(chiTiet.getMssvNhan());
-                    LinearLayout linearLayout = findViewById(R.id.truyXuatNew);
-                    LayoutInflater inflater = LayoutInflater.from(TruyXuatVe.this);
+            if (lichSuModelArrayList.isEmpty()){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBarTruyXuat.setVisibility(View.GONE);
+                        txtThongTinNull.setVisibility(View.VISIBLE);
+                    }
+                });
+            }else{
+                for (LichSuModel chiTiet: lichSuModelArrayList){
+                    try {
+                        SinhVien sinhVien1 = getSinhVien(chiTiet.getMssvBan());
+                        SinhVien sinhVien2 = getSinhVien(chiTiet.getMssvNhan());
+                        LinearLayout linearLayout = findViewById(R.id.truyXuatNew);
+                        LayoutInflater inflater = LayoutInflater.from(TruyXuatVe.this);
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ProgressBar progressBarTruyXuat = findViewById(R.id.progressBarTruyXuat);
-                            View v = inflater.inflate(R.layout.giaodich_layout,linearLayout,false);
-                            anhxa(v);
-                            String fullname = sinhVien1.getHovaten() + " "+ sinhVien1.getTen();
-                            txtTenSinhVien1.setText(fullname);
-                            if (sinhVien1.getGoitinh() ==1){
-                                txtGioiTinh1.setText("Nam");
-                            }else{
-                                txtGioiTinh1.setText("Nữ");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                View v = inflater.inflate(R.layout.giaodich_layout,linearLayout,false);
+                                anhxa(v);
+                                String fullname = sinhVien1.getHovaten() + " "+ sinhVien1.getTen();
+                                txtTenSinhVien1.setText(fullname);
+                                if (sinhVien1.getGoitinh() ==1){
+                                    txtGioiTinh1.setText("Nam");
+                                }else{
+                                    txtGioiTinh1.setText("Nữ");
+                                }
+                                txtKhoa1.setText(sinhVien1.getKhoa());
+                                txtNgaySinh1.setText(sinhVien1.getNgaySinh());
+                                txtLop1.setText(sinhVien1.getLop());
+                                txtMssv1.setText(sinhVien1.getMssv());
+                                ///////////////////////////////////////
+                                //////////////////////////////////////
+                                String fullNameSinhVien2 = sinhVien2.getHovaten() + " "+ sinhVien2.getTen();
+                                txtTenSinhVien2.setText(fullNameSinhVien2);
+                                if (sinhVien2.getGoitinh() ==1){
+                                    txtGioiTinh2.setText("Nam");
+                                }else{
+                                    txtGioiTinh2.setText("Nữ");
+                                }
+                                txtKhoa2.setText(sinhVien2.getKhoa());
+                                txtNgaySinh2.setText(sinhVien2.getNgaySinh());
+                                txtLop2.setText(sinhVien2.getLop());
+                                txtMssv2.setText(sinhVien2.getMssv());
+                                txtMaVe.setText(maVe);
+                                txtDateBan.setText(chiTiet.getDateString());
+                                try {
+                                    MultiFormatWriter writer = new MultiFormatWriter();
+                                    BitMatrix bitMatrix = writer.encode(maVe, BarcodeFormat.CODE_39,300,50);
+                                    BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                                    Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                                    barCode.setImageBitmap(bitmap);
+                                } catch (WriterException e) {
+                                    e.printStackTrace();
+                                }
+                                linearLayout.addView(v);
+                                progressBarTruyXuat.setVisibility(View.GONE);
                             }
-                            txtKhoa1.setText(sinhVien1.getKhoa());
-                            txtNgaySinh1.setText(sinhVien1.getNgaySinh());
-                            txtLop1.setText(sinhVien1.getLop());
-                            txtMssv1.setText(sinhVien1.getMssv());
-                            ///////////////////////////////////////
-                            //////////////////////////////////////
-                            String fullNameSinhVien2 = sinhVien2.getHovaten() + " "+ sinhVien2.getTen();
-                            txtTenSinhVien2.setText(fullNameSinhVien2);
-                            if (sinhVien2.getGoitinh() ==1){
-                                txtGioiTinh2.setText("Nam");
-                            }else{
-                                txtGioiTinh2.setText("Nữ");
-                            }
-                            txtKhoa2.setText(sinhVien2.getKhoa());
-                            txtNgaySinh2.setText(sinhVien2.getNgaySinh());
-                            txtLop2.setText(sinhVien2.getLop());
-                            txtMssv2.setText(sinhVien2.getMssv());
-                            txtMaVe.setText(maVe);
-                            txtDateBan.setText(chiTiet.getDateString());
-                            try {
-                                MultiFormatWriter writer = new MultiFormatWriter();
-                                BitMatrix bitMatrix = writer.encode(maVe, BarcodeFormat.CODE_39,300,50);
-                                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                                Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-                                barCode.setImageBitmap(bitmap);
-                            } catch (WriterException e) {
-                                e.printStackTrace();
-                            }
-                            linearLayout.addView(v);
-                            progressBarTruyXuat.setVisibility(View.GONE);
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.w(TAG,e.getMessage(),e);
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.w(TAG,e.getMessage(),e);
+                    }
                 }
             }
+
         }
         private void anhxa(View v){
             txtMssv1 = v.findViewById(R.id.mssvBanGiaoDich);

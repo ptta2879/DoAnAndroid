@@ -7,6 +7,19 @@
     android:background="@drawable/gradient_bg_thongtin3"
     tools:context=".TruyXuatVe">
 
+    <TextView
+        android:id="@+id/textThongTinTruyXuat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:fontFamily="@font/roboto"
+        android:visibility="gone"
+        android:text="Không có thông tin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ProgressBar
         android:id="@+id/progressBarTruyXuat"
         style="@android:style/Widget.Material.Light.ProgressBar"

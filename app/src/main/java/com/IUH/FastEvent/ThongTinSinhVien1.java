@@ -171,78 +171,70 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
             ,sinhVien.getTen(),ve.getMasukien(),ve.getMave(),ve.getVitri()).sendAsync();
             tinhTrang.thenAccept(transactionReceipt -> {
                 if (transactionReceipt.isStatusOK()){
+                    CheckUpdateVeAo checkUpdateVeAo = new CheckUpdateVeAo();
                     firestore.collection("yeucau").document(docId)
                             .update("trangthai",1)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    pDialog.dismissWithAnimation();
                                     nutGiaoDich.setVisibility(View.GONE);
                                     nutHuy.setVisibility(View.GONE);
-                                    Alerter.create(ThongTinSinhVien1.this)
-                                            .setTitle("Xác nhận yêu cầu thành công")
-                                            .setText("Bạn đã xác nhận yêu cầu thành công.")
-                                            .setBackgroundColorRes(R.color.success)
-                                            .setIcon(R.drawable.ic_baseline_check)
-                                            .enableSwipeToDismiss().setDuration(4000).show();
-                                    web3j.shutdown();
+                                    firestore.collection("ve").whereEqualTo("mave",ve.getMave()).get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    for ( QueryDocumentSnapshot doc: task.getResult()){
+                                                        firestore.collection("ve").document(doc.getId())
+                                                                .update("mssv",mssvNhan.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                pDialog.dismissWithAnimation();
+                                                                Alerter.create(ThongTinSinhVien1.this)
+                                                                        .setTitle("Xác nhận yêu cầu thành công")
+                                                                        .setText("Bạn đã xác nhận yêu cầu thành công. Bạn có thể quay lại" +
+                                                                                "xác nhận yêu cầu khác")
+                                                                        .setBackgroundColorRes(R.color.success)
+                                                                        .setIcon(R.drawable.ic_baseline_check)
+                                                                        .enableSwipeToDismiss().setDuration(4000).show();
+                                                                web3j.shutdown();
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+
+                                                                Log.d(TAG, e.getMessage(), e);
+                                                                nutGiaoDich.setVisibility(View.GONE);
+                                                                nutHuy.setVisibility(View.GONE);
+                                                                pDialog.dismissWithAnimation();
+                                                                web3j.shutdown();
+                                                                Alerter.create(ThongTinSinhVien1.this)
+                                                                        .setTitle("Xác nhận yêu cầu thành công")
+                                                                        .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
+                                                                        .setBackgroundColorRes(R.color.gray)
+                                                                        .setIcon(R.drawable.ic_baseline_close_24)
+                                                                        .enableSwipeToDismiss().setDuration(4000).show();
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            });
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e){
                             nutGiaoDich.setVisibility(View.GONE);
                             nutHuy.setVisibility(View.GONE);
+                            Log.d(TAG, e.getMessage(), e);
                             pDialog.dismissWithAnimation();
                             web3j.shutdown();
-                            Log.w(TAG, e.getMessage(), e);
                             Alerter.create(ThongTinSinhVien1.this)
-                                    .setTitle("Phát hiện lỗi")
-                                    .setText("Chưa thay đổi được trạng thái vì lỗi phát sinh")
-                                    .setBackgroundColorRes(R.color.red)
+                                    .setTitle("Xác nhận yêu cầu thành công")
+                                    .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
+                                    .setBackgroundColorRes(R.color.gray)
                                     .setIcon(R.drawable.ic_baseline_close_24)
                                     .enableSwipeToDismiss().setDuration(4000).show();
                         }
                     });
-                    firestore.collection("ve").whereEqualTo("mave",ve.getMave()).get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    for ( QueryDocumentSnapshot doc: task.getResult()){
-                                        firestore.collection("ve").document(doc.getId())
-                                                .update("mssv",mssvNhan.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                pDialog.dismissWithAnimation();
-                                                nutGiaoDich.setVisibility(View.GONE);
-                                                nutHuy.setVisibility(View.GONE);
-                                                Alerter.create(ThongTinSinhVien1.this)
-                                                        .setTitle("Xác nhận yêu cầu thành công")
-                                                        .setText("Xử lý dữ liệu vé hoàn thành")
-                                                        .setBackgroundColorRes(R.color.success)
-                                                        .setIcon(R.drawable.ic_baseline_check)
-                                                        .enableSwipeToDismiss().setDuration(4000).show();
-                                                web3j.shutdown();
-                                            }
-                                        }).addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                nutGiaoDich.setVisibility(View.GONE);
-                                                nutHuy.setVisibility(View.GONE);
-                                                pDialog.dismissWithAnimation();
-                                                web3j.shutdown();
-                                                Log.d(TAG, e.getMessage(), e);
-                                                Alerter.create(ThongTinSinhVien1.this)
-                                                        .setTitle("Phát hiện lỗi")
-                                                        .setText("Chưa thay đổi được mssv vì lỗi phát sinh")
-                                                        .setBackgroundColorRes(R.color.red)
-                                                        .setIcon(R.drawable.ic_baseline_close_24)
-                                                        .enableSwipeToDismiss().setDuration(4000).show();
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-
                 }else{
                     pDialog.dismissWithAnimation();
                     Alerter.create(ThongTinSinhVien1.this)
@@ -735,6 +727,26 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
         unregisterReceiver(common);
         firestore.collection("yeucau").document(docId).update("tuongtac","");
 
+    }
+    class CheckUpdateVeAo{
+        private Boolean update1;
+        private Boolean update2;
+
+        public Boolean getUpdate1() {
+            return update1;
+        }
+
+        public void setUpdate1(Boolean update1) {
+            this.update1 = update1;
+        }
+
+        public Boolean getUpdate2() {
+            return update2;
+        }
+
+        public void setUpdate2(Boolean update2) {
+            this.update2 = update2;
+        }
     }
 
 }

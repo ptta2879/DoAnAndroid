@@ -196,7 +196,6 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Boolean checkNamHocSinhVien = checkNamSinhVien();
             GetThongTinTaoVe thongTin = (mssv) -> {
                 String urlFull = url.append(mssv).toString();
                 Request.Builder builder = new Request.Builder();
@@ -226,6 +225,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            Boolean checkNamHocSinhVien = checkNamSinhVien();
                 if(checkHoatDongTrueFalse || checkNamHocSinhVien){
                     String nguoiTao = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
                     ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
@@ -273,7 +273,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                     }).exceptionally(throwable -> {
                                         pDialog.dismissWithAnimation();
                                         Alerter.create(ThemVe.this)
-                                                .setTitle("Thông Báo").setText("Vé đã được xác nhận")
+                                                .setTitle("Cấp phát vé không thành công").setText("Vé đã được cấp phát")
                                                 .setBackgroundColorRes(R.color.red)
                                                 .setIcon(R.drawable.ic_baseline_close_24)
                                                 .enableSwipeToDismiss().setDuration(4000).show();
@@ -303,7 +303,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                     }else{
                         pDialog.dismissWithAnimation();
                         Alerter.create(ThemVe.this)
-                                .setTitle("Thông Báo").setText("Không đủ thông tin")
+                                .setTitle("Thông Báo").setText("Không có thông tin")
                                 .setBackgroundColorRes(R.color.red)
                                 .setIcon(R.drawable.ic_baseline_close_24)
                                 .enableSwipeToDismiss().setDuration(4000).show();
@@ -359,10 +359,9 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
         public Boolean checkNamSinhVien(){
             String namNhapHoc = maSinhVien.substring(0,2);
             Integer namNhapHocInt = Integer.valueOf(namNhapHoc);
-            Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            Integer yearString = Integer.valueOf(Integer.toString(year).substring(2));
-            int yearCheck = yearString-namNhapHocInt;
+            String[] namHoc = thongTinSuKien.getNamhoc().split("-");
+            Integer namHocInt = Integer.parseInt(namHoc[0].substring(2));
+            int yearCheck = namHocInt-namNhapHocInt;
             if (yearCheck ==0){
                 return true;
             }else{

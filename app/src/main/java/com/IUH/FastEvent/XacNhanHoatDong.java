@@ -183,15 +183,24 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
                         .enableSwipeToDismiss().setDuration(4000).show();
             }
             if (congTacVien != null){
-                if (congTacVien.getHoatdong() != null){
-                    try {
-                        capNhapHoatDong(congTacVien.getHoatdong());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.w(TAG,e.getMessage(),e);
+                if (congTacVien.getHoatdong() != null ){
+                    if (congTacVien.getHoatdong().equals("")){
+                        try {
+                            capNhapHoatDong(congTacVien.getHoatdong());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.w(TAG,e.getMessage(),e);
+                            pDialog.dismissWithAnimation();
+                            Alerter.create(XacNhanHoatDong.this)
+                                    .setTitle("Phát hiện lỗi").setText("Xuất hiện lỗi không thể xác nhận hoạt động")
+                                    .setBackgroundColorRes(R.color.red)
+                                    .setIcon(R.drawable.ic_baseline_close_24)
+                                    .enableSwipeToDismiss().setDuration(4000).show();
+                        }
+                    }else{
                         pDialog.dismissWithAnimation();
                         Alerter.create(XacNhanHoatDong.this)
-                                .setTitle("Phát hiện lỗi").setText("Xuất hiện lỗi không thể xác nhận hoạt động")
+                                .setTitle("Thông Báo").setText("Chưa phân công hoạt động")
                                 .setBackgroundColorRes(R.color.red)
                                 .setIcon(R.drawable.ic_baseline_close_24)
                                 .enableSwipeToDismiss().setDuration(4000).show();
