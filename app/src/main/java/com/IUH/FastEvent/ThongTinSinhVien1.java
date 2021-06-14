@@ -165,7 +165,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
         Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
         String nguoiTao = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
         Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j,
-                thongTinWeb3.getCredentialsWallet(),new StaticGasProvider(ThongTinWeb3.GAS_PRICE,ThongTinWeb3.GAS_LIMIT));
+                thongTinWeb3.getCredentialsWallet(),new DefaultGasProvider());
         try {
             CompletableFuture<TransactionReceipt> tinhTrang = sukien_sol_sukien.giaoDich(mssvYeuCau,mssvNhan,nguoiTao,sinhVien.getHovaten()
             ,sinhVien.getTen(),ve.getMasukien(),ve.getMave(),ve.getVitri()).sendAsync();

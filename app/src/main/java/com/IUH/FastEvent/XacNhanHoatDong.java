@@ -184,7 +184,7 @@ public class XacNhanHoatDong extends AppCompatActivity implements EasyPermission
             }
             if (congTacVien != null){
                 if (congTacVien.getHoatdong() != null ){
-                    if (congTacVien.getHoatdong().equals("")){
+                    if (!congTacVien.getHoatdong().equals("")){
                         try {
                             capNhapHoatDong(congTacVien.getHoatdong());
                         } catch (IOException e) {

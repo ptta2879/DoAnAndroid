@@ -272,6 +272,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                                         }
                                     }).exceptionally(throwable -> {
                                         pDialog.dismissWithAnimation();
+                                        Log.d(TAG,throwable.getMessage(),throwable);
                                         Alerter.create(ThemVe.this)
                                                 .setTitle("Cấp phát vé không thành công").setText("Vé đã được cấp phát")
                                                 .setBackgroundColorRes(R.color.red)
@@ -292,6 +293,7 @@ public class ThemVe extends AppCompatActivity  implements EasyPermissions.Permis
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
+                            Log.d(TAG,e.getMessage(),e);
                             pDialog.dismissWithAnimation();
                             Alerter.create(ThemVe.this)
                                     .setTitle("Thông Báo").setText("Không lấy được số lượng vé đã cấp phát")
