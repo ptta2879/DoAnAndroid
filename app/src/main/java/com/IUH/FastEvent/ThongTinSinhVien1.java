@@ -78,7 +78,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 interface XuLyYeuCau{
-    void xacNhanYeuCau(BigInteger mssvYeuCau,BigInteger mssvNhan, Ve ve,SinhVien sinhVien);
     void huyYeuCau();
 }
 public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
@@ -105,6 +104,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private String docId,docIdVe;
     private ExecutorService executorService;
+    private SweetAlertDialog pDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,114 +137,209 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
         executorService.submit(new ThongTinVe());
         executorService.submit(new ThongTinSinhVien2());
         executorService.submit(new ThongTinVe2());
+        pDialog = new SweetAlertDialog(ThongTinSinhVien1.this, SweetAlertDialog.PROGRESS_TYPE);
         nutGiaoDich.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                pDialog.setTitleText("Vui lòng đợi...");
+                pDialog.setCancelable(false);
+                pDialog.show();
                 BigInteger mssvBigInt = new BigInteger(mssv);
                 BigInteger mssvBigInt2 = new BigInteger(mssv2);
-                xacNhanYeuCau(mssvBigInt,mssvBigInt2,thongTinVe,sinhVien2);
+//                xacNhanYeuCau(mssvBigInt,mssvBigInt2,thongTinVe,sinhVien2);
+                executorService.submit(new XacNhanYeuCau(mssvBigInt,mssvBigInt2,thongTinVe,sinhVien2));
             }
         });
         nutHuy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                pDialog.setTitleText("Vui lòng đợi...");
+                pDialog.setCancelable(false);
+                pDialog.show();
                 huyYeuCau();
             }
         });
     }
+    class XacNhanYeuCau implements Runnable{
+        private final BigInteger mssvYeuCau;
+        private final BigInteger mssvNhan;
+        private final Ve ve;
+        private final SinhVien sinhVien;
 
-    @Override
-    public void xacNhanYeuCau(BigInteger mssvYeuCau, BigInteger mssvNhan, Ve ve, SinhVien sinhVien){
-        String docIdVe = null;
-        SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
-        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-        pDialog.setTitleText("Vui lòng đợi...");
-        pDialog.setCancelable(false);
-        pDialog.show();
-        ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
-        Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
-        String nguoiTao = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
-        Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j,
-                thongTinWeb3.getCredentialsWallet(),new DefaultGasProvider());
-        try {
-            CompletableFuture<TransactionReceipt> tinhTrang = sukien_sol_sukien.giaoDich(mssvYeuCau,mssvNhan,nguoiTao,sinhVien.getHovaten()
-            ,sinhVien.getTen(),ve.getMasukien(),ve.getMave(),ve.getVitri()).sendAsync();
-            tinhTrang.thenAccept(transactionReceipt -> {
-                if (transactionReceipt.isStatusOK()){
-                    CheckUpdateVeAo checkUpdateVeAo = new CheckUpdateVeAo();
-                    firestore.collection("yeucau").document(docId)
-                            .update("trangthai",1)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    nutGiaoDich.setVisibility(View.GONE);
-                                    nutHuy.setVisibility(View.GONE);
-                                    firestore.collection("ve").whereEqualTo("mave",ve.getMave()).get()
-                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                    for ( QueryDocumentSnapshot doc: task.getResult()){
-                                                        firestore.collection("ve").document(doc.getId())
-                                                                .update("mssv",mssvNhan.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                pDialog.dismissWithAnimation();
-                                                                Alerter.create(ThongTinSinhVien1.this)
-                                                                        .setTitle("Xác nhận yêu cầu thành công")
-                                                                        .setText("Bạn đã xác nhận yêu cầu thành công. Bạn có thể quay lại" +
-                                                                                "xác nhận yêu cầu khác")
-                                                                        .setBackgroundColorRes(R.color.success)
-                                                                        .setIcon(R.drawable.ic_baseline_check)
-                                                                        .enableSwipeToDismiss().setDuration(4000).show();
-                                                                web3j.shutdown();
-                                                            }
-                                                        }).addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
+        public XacNhanYeuCau(BigInteger mssvYeuCau, BigInteger mssvNhan, Ve ve, SinhVien sinhVien) {
+            this.mssvYeuCau = mssvYeuCau;
+            this.mssvNhan = mssvNhan;
+            this.ve = ve;
+            this.sinhVien = sinhVien;
+        }
 
-                                                                Log.d(TAG, e.getMessage(), e);
-                                                                nutGiaoDich.setVisibility(View.GONE);
-                                                                nutHuy.setVisibility(View.GONE);
-                                                                pDialog.dismissWithAnimation();
-                                                                web3j.shutdown();
-                                                                Alerter.create(ThongTinSinhVien1.this)
-                                                                        .setTitle("Xác nhận yêu cầu thành công")
-                                                                        .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
-                                                                        .setBackgroundColorRes(R.color.gray)
-                                                                        .setIcon(R.drawable.ic_baseline_close_24)
-                                                                        .enableSwipeToDismiss().setDuration(4000).show();
-                                                            }
-                                                        });
+        @Override
+        public void run() {
+            Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
+            Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j, new ThongTinWeb3().getCredentialsWallet(),
+                    new StaticGasProvider(ThongTinWeb3.GAS_PRICE,ThongTinWeb3.GAS_LIMIT));
+            String nguoiTao = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
+            try {
+                Boolean kiemTraVe = sukien_sol_sukien.kiemTraVe(mssvNhan,ve.getMasukien()).send();
+                if (kiemTraVe){
+                    TransactionReceipt chuyenVe = sukien_sol_sukien.chuyenVeDaCo(mssvYeuCau,mssvNhan,ve.getMasukien(),ve.getMave(),ve.getVitri()).send();
+                    if (chuyenVe.isStatusOK()){
+                        firestore.collection("yeucau").document(docId)
+                                .update("trangthai",1)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        nutGiaoDich.setVisibility(View.GONE);
+                                        nutHuy.setVisibility(View.GONE);
+                                        firestore.collection("ve").whereEqualTo("mave",ve.getMave()).get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        for ( QueryDocumentSnapshot doc: task.getResult()){
+                                                            firestore.collection("ve").document(doc.getId())
+                                                                    .update("mssv",mssvNhan.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+                                                                    pDialog.dismissWithAnimation();
+                                                                    Alerter.create(ThongTinSinhVien1.this)
+                                                                            .setTitle("Xác nhận yêu cầu thành công")
+                                                                            .setText("Bạn đã xác nhận yêu cầu thành công. Bạn có thể quay lại" +
+                                                                                    "xác nhận yêu cầu khác")
+                                                                            .setBackgroundColorRes(R.color.success)
+                                                                            .setIcon(R.drawable.ic_baseline_check)
+                                                                            .enableSwipeToDismiss().setDuration(4000).show();
+                                                                    web3j.shutdown();
+                                                                }
+                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+
+                                                                    Log.d(TAG, e.getMessage(), e);
+                                                                    nutGiaoDich.setVisibility(View.GONE);
+                                                                    nutHuy.setVisibility(View.GONE);
+                                                                    pDialog.dismissWithAnimation();
+                                                                    web3j.shutdown();
+                                                                    Alerter.create(ThongTinSinhVien1.this)
+                                                                            .setTitle("Xác nhận yêu cầu thành công")
+                                                                            .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
+                                                                            .setBackgroundColorRes(R.color.gray)
+                                                                            .setIcon(R.drawable.ic_baseline_close_24)
+                                                                            .enableSwipeToDismiss().setDuration(4000).show();
+                                                                }
+                                                            });
+                                                        }
                                                     }
-                                                }
-                                            });
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e){
-                            nutGiaoDich.setVisibility(View.GONE);
-                            nutHuy.setVisibility(View.GONE);
-                            Log.d(TAG, e.getMessage(), e);
-                            pDialog.dismissWithAnimation();
-                            web3j.shutdown();
-                            Alerter.create(ThongTinSinhVien1.this)
-                                    .setTitle("Xác nhận yêu cầu thành công")
-                                    .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
-                                    .setBackgroundColorRes(R.color.gray)
-                                    .setIcon(R.drawable.ic_baseline_close_24)
-                                    .enableSwipeToDismiss().setDuration(4000).show();
-                        }
-                    });
+                                                });
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e){
+                                nutGiaoDich.setVisibility(View.GONE);
+                                nutHuy.setVisibility(View.GONE);
+                                Log.d(TAG, e.getMessage(), e);
+                                pDialog.dismissWithAnimation();
+                                web3j.shutdown();
+                                Alerter.create(ThongTinSinhVien1.this)
+                                        .setTitle("Xác nhận yêu cầu thành công")
+                                        .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
+                                        .setBackgroundColorRes(R.color.gray)
+                                        .setIcon(R.drawable.ic_baseline_close_24)
+                                        .enableSwipeToDismiss().setDuration(4000).show();
+                            }
+                        });
+                    }else{
+                        pDialog.dismissWithAnimation();
+                        Alerter.create(ThongTinSinhVien1.this)
+                                .setTitle("Phát hiện lỗi")
+                                .setText("Xác nhận giao dịch không thành công. Có thể lượng gas không đủ " +
+                                        "để giao dịch")
+                                .setBackgroundColorRes(R.color.red)
+                                .setIcon(R.drawable.ic_baseline_close_24)
+                                .enableSwipeToDismiss().setDuration(4000).show();
+                    }
                 }else{
-                    pDialog.dismissWithAnimation();
-                    Alerter.create(ThongTinSinhVien1.this)
-                            .setTitle("Phát hiện lỗi")
-                            .setText("Xác nhận yêu cầu không thành công")
-                            .setBackgroundColorRes(R.color.red)
-                            .setIcon(R.drawable.ic_baseline_close_24)
-                            .enableSwipeToDismiss().setDuration(4000).show();
+                    TransactionReceipt statusChuyenVe = sukien_sol_sukien.chuyenVe(mssvYeuCau,mssvNhan,nguoiTao,sinhVien.getHovaten(),sinhVien.getTen(),
+                            ve.getMasukien(),ve.getMave(),ve.getVitri()).send();
+                    if (statusChuyenVe.isStatusOK()){
+                        firestore.collection("yeucau").document(docId)
+                                .update("trangthai",1)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        nutGiaoDich.setVisibility(View.GONE);
+                                        nutHuy.setVisibility(View.GONE);
+                                        firestore.collection("ve").whereEqualTo("mave",ve.getMave()).get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        for ( QueryDocumentSnapshot doc: task.getResult()){
+                                                            firestore.collection("ve").document(doc.getId())
+                                                                    .update("mssv",mssvNhan.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+                                                                    pDialog.dismissWithAnimation();
+                                                                    Alerter.create(ThongTinSinhVien1.this)
+                                                                            .setTitle("Xác nhận yêu cầu thành công")
+                                                                            .setText("Bạn đã xác nhận yêu cầu thành công. Bạn có thể quay lại" +
+                                                                                    "xác nhận yêu cầu khác")
+                                                                            .setBackgroundColorRes(R.color.success)
+                                                                            .setIcon(R.drawable.ic_baseline_check)
+                                                                            .enableSwipeToDismiss().setDuration(4000).show();
+                                                                    web3j.shutdown();
+                                                                }
+                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+
+                                                                    Log.d(TAG, e.getMessage(), e);
+                                                                    nutGiaoDich.setVisibility(View.GONE);
+                                                                    nutHuy.setVisibility(View.GONE);
+                                                                    pDialog.dismissWithAnimation();
+                                                                    web3j.shutdown();
+                                                                    Alerter.create(ThongTinSinhVien1.this)
+                                                                            .setTitle("Xác nhận yêu cầu thành công")
+                                                                            .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
+                                                                            .setBackgroundColorRes(R.color.gray)
+                                                                            .setIcon(R.drawable.ic_baseline_close_24)
+                                                                            .enableSwipeToDismiss().setDuration(4000).show();
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e){
+                                nutGiaoDich.setVisibility(View.GONE);
+                                nutHuy.setVisibility(View.GONE);
+                                Log.d(TAG, e.getMessage(), e);
+                                pDialog.dismissWithAnimation();
+                                web3j.shutdown();
+                                Alerter.create(ThongTinSinhVien1.this)
+                                        .setTitle("Xác nhận yêu cầu thành công")
+                                        .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
+                                        .setBackgroundColorRes(R.color.gray)
+                                        .setIcon(R.drawable.ic_baseline_close_24)
+                                        .enableSwipeToDismiss().setDuration(4000).show();
+                            }
+                        });
+                    }else{
+                        pDialog.dismissWithAnimation();
+                        Alerter.create(ThongTinSinhVien1.this)
+                                .setTitle("Phát hiện lỗi")
+                                .setText("Xác nhận giao dịch không thành công. Có thể lượng gas không đủ " +
+                                        "để giao dịch")
+                                .setBackgroundColorRes(R.color.red)
+                                .setIcon(R.drawable.ic_baseline_close_24)
+                                .enableSwipeToDismiss().setDuration(4000).show();
+                    }
                 }
-            }).exceptionally(throwable -> {
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG,e.getMessage(),e);
                 pDialog.dismissWithAnimation();
                 Alerter.create(ThongTinSinhVien1.this)
                         .setTitle("Phát hiện lỗi")
@@ -252,22 +347,125 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
                         .setBackgroundColorRes(R.color.red)
                         .setIcon(R.drawable.ic_baseline_close_24)
                         .enableSwipeToDismiss().setDuration(4000).show();
-                Log.w(TAG,throwable.getMessage(),throwable);
-                return null;
-            });
-        } catch (Exception e) {
-            pDialog.dismissWithAnimation();
-            web3j.shutdown();
-            e.printStackTrace();
-            Log.w(TAG,e.getMessage(),e);
-            Alerter.create(ThongTinSinhVien1.this)
-                    .setTitle("Phát hiện lỗi không thể thực hiện chức năng này")
-                    .setText("Đã có lỗi xảy ra không thể thực hiện yêu cầu chuyển vé")
-                    .setBackgroundColorRes(R.color.red)
-                    .setIcon(R.drawable.ic_baseline_close_24)
-                    .enableSwipeToDismiss().setDuration(4000).show();
+            }
         }
     }
+
+//    @Override
+//    public void xacNhanYeuCau(BigInteger mssvYeuCau, BigInteger mssvNhan, Ve ve, SinhVien sinhVien){
+//        String docIdVe = null;
+//        SweetAlertDialog pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+//        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+//        pDialog.setTitleText("Vui lòng đợi...");
+//        pDialog.setCancelable(false);
+//        pDialog.show();
+//        ThongTinWeb3 thongTinWeb3 = new ThongTinWeb3();
+//        Web3j web3j = Web3j.build(new HttpService(ThongTinWeb3.URL));
+//        String nguoiTao = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail();
+//        Sukien_sol_Sukien sukien_sol_sukien = Sukien_sol_Sukien.load(ThongTinWeb3.ADDRESS,web3j,
+//                thongTinWeb3.getCredentialsWallet(),new DefaultGasProvider());
+//        try {
+//            CompletableFuture<TransactionReceipt> tinhTrang = sukien_sol_sukien.giaoDich(mssvYeuCau,mssvNhan,nguoiTao,sinhVien.getHovaten()
+//            ,sinhVien.getTen(),ve.getMasukien(),ve.getMave(),ve.getVitri()).sendAsync();
+//            tinhTrang.thenAccept(transactionReceipt -> {
+//                if (transactionReceipt.isStatusOK()){
+//                    CheckUpdateVeAo checkUpdateVeAo = new CheckUpdateVeAo();
+//                    firestore.collection("yeucau").document(docId)
+//                            .update("trangthai",1)
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    nutGiaoDich.setVisibility(View.GONE);
+//                                    nutHuy.setVisibility(View.GONE);
+//                                    firestore.collection("ve").whereEqualTo("mave",ve.getMave()).get()
+//                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                                                @Override
+//                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                                                    for ( QueryDocumentSnapshot doc: task.getResult()){
+//                                                        firestore.collection("ve").document(doc.getId())
+//                                                                .update("mssv",mssvNhan.toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                            @Override
+//                                                            public void onSuccess(Void aVoid) {
+//                                                                pDialog.dismissWithAnimation();
+//                                                                Alerter.create(ThongTinSinhVien1.this)
+//                                                                        .setTitle("Xác nhận yêu cầu thành công")
+//                                                                        .setText("Bạn đã xác nhận yêu cầu thành công. Bạn có thể quay lại" +
+//                                                                                "xác nhận yêu cầu khác")
+//                                                                        .setBackgroundColorRes(R.color.success)
+//                                                                        .setIcon(R.drawable.ic_baseline_check)
+//                                                                        .enableSwipeToDismiss().setDuration(4000).show();
+//                                                                web3j.shutdown();
+//                                                            }
+//                                                        }).addOnFailureListener(new OnFailureListener() {
+//                                                            @Override
+//                                                            public void onFailure(@NonNull Exception e) {
+//
+//                                                                Log.d(TAG, e.getMessage(), e);
+//                                                                nutGiaoDich.setVisibility(View.GONE);
+//                                                                nutHuy.setVisibility(View.GONE);
+//                                                                pDialog.dismissWithAnimation();
+//                                                                web3j.shutdown();
+//                                                                Alerter.create(ThongTinSinhVien1.this)
+//                                                                        .setTitle("Xác nhận yêu cầu thành công")
+//                                                                        .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
+//                                                                        .setBackgroundColorRes(R.color.gray)
+//                                                                        .setIcon(R.drawable.ic_baseline_close_24)
+//                                                                        .enableSwipeToDismiss().setDuration(4000).show();
+//                                                            }
+//                                                        });
+//                                                    }
+//                                                }
+//                                            });
+//                                }
+//                            }).addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e){
+//                            nutGiaoDich.setVisibility(View.GONE);
+//                            nutHuy.setVisibility(View.GONE);
+//                            Log.d(TAG, e.getMessage(), e);
+//                            pDialog.dismissWithAnimation();
+//                            web3j.shutdown();
+//                            Alerter.create(ThongTinSinhVien1.this)
+//                                    .setTitle("Xác nhận yêu cầu thành công")
+//                                    .setText("Xác nhận yêu cầu thành công. Chưa cập nhật được dữ liệu")
+//                                    .setBackgroundColorRes(R.color.gray)
+//                                    .setIcon(R.drawable.ic_baseline_close_24)
+//                                    .enableSwipeToDismiss().setDuration(4000).show();
+//                        }
+//                    });
+//                }else{
+//                    pDialog.dismissWithAnimation();
+//                    Alerter.create(ThongTinSinhVien1.this)
+//                            .setTitle("Phát hiện lỗi")
+//                            .setText("Xác nhận yêu cầu không thành công")
+//                            .setBackgroundColorRes(R.color.red)
+//                            .setIcon(R.drawable.ic_baseline_close_24)
+//                            .enableSwipeToDismiss().setDuration(4000).show();
+//                }
+//            }).exceptionally(throwable -> {
+//                pDialog.dismissWithAnimation();
+//                Alerter.create(ThongTinSinhVien1.this)
+//                        .setTitle("Phát hiện lỗi")
+//                        .setText("Xác nhận yêu cầu không thành công")
+//                        .setBackgroundColorRes(R.color.red)
+//                        .setIcon(R.drawable.ic_baseline_close_24)
+//                        .enableSwipeToDismiss().setDuration(4000).show();
+//                Log.w(TAG,throwable.getMessage(),throwable);
+//                return null;
+//            });
+//        } catch (Exception e) {
+//            pDialog.dismissWithAnimation();
+//            web3j.shutdown();
+//            e.printStackTrace();
+//            Log.w(TAG,e.getMessage(),e);
+//            Alerter.create(ThongTinSinhVien1.this)
+//                    .setTitle("Phát hiện lỗi không thể thực hiện chức năng này")
+//                    .setText("Đã có lỗi xảy ra không thể thực hiện yêu cầu chuyển vé")
+//                    .setBackgroundColorRes(R.color.red)
+//                    .setIcon(R.drawable.ic_baseline_close_24)
+//                    .enableSwipeToDismiss().setDuration(4000).show();
+//        }
+//    }
 
     @Override
     public void huyYeuCau() {
@@ -277,6 +475,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
             public void onSuccess(Void aVoid) {
                 nutGiaoDich.setVisibility(View.GONE);
                 nutHuy.setVisibility(View.GONE);
+                pDialog.dismissWithAnimation();
                 Alerter.create(ThongTinSinhVien1.this)
                         .setTitle("Hủy Yêu Cầu Thành Công")
                         .setText("Bạn đã hủy yêu cầu thành công."+
@@ -289,6 +488,7 @@ public class ThongTinSinhVien1 extends AppCompatActivity implements XuLyYeuCau{
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(TAG,e.getMessage(),e);
+                pDialog.dismissWithAnimation();
                 Alerter.create(ThongTinSinhVien1.this)
                         .setTitle("Phát hiện lỗi")
                         .setText("Có lỗi xảy ra không thể hủy yêu cầu")
